@@ -59,9 +59,7 @@ function Signup() {
           <HiMiniWallet className="inline-block mr-2" />
           SmartSpend
         </h1>
-        <p className="mb-6 text-gray-500 text-center">
-          Create your account
-        </p>
+        <p className="mb-6 text-gray-500 text-center">Create your account</p>
         {error && (
           <motion.p
             initial={{ opacity: 0, translateY: -10 }}
@@ -121,7 +119,7 @@ function Signup() {
         </form>
         <p className="text-center text-gray-500 mt-4">
           Already have an account?{" "}
-          <Link to="/login" className="text-secondary hover:underline">
+          <Link to="/" className="text-secondary hover:underline">
             Login
           </Link>
         </p>

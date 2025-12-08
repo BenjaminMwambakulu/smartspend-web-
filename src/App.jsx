@@ -1,18 +1,49 @@
-import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import React, { useContext, useEffect } from "react";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
+import Home from "./pages/Home/Home";
+import { UserProvider, default as UserContext } from "./context/userContext";
+import ProtectedRoute from "./pages/Auth/ProtectedRoute";
 
-function App() {
+function AppContent() {
+  const { user, loading } = useContext(UserContext);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-        </Routes>
+        <AnimatePresence mode="wait">
+          <Routes>
+            <Route 
+              path="/" 
+              element={user ? <Navigate to="/home" /> : <Login />} 
+            />
+            <Route path="/signup" element={<Signup />} />
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </AnimatePresence>
       </BrowserRouter>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <UserProvider>
+      <AppContent />
+    </UserProvider>
   );
 }
 
