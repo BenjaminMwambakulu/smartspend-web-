@@ -1,0 +1,1 @@
+export const databaseID = import.meta.env.VITE_APPWRITE_DATABASE_ID;

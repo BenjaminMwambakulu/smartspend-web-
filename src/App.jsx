@@ -15,17 +15,17 @@ function AppContent() {
   }
 
   return (
-    <div>
+    <div className="bg-primary p-8 min-h-screen">
       <BrowserRouter>
         <AnimatePresence mode="wait">
           <Routes>
-            <Route 
-              path="/" 
-              element={user ? <Navigate to="/home" replace /> : <Login />} 
+            <Route
+              path="/"
+              element={user ? <Navigate to="/home" replace /> : <Login />}
             />
-            <Route 
-              path="/signup" 
-              element={user ? <Navigate to="/home" replace /> : <Signup />} 
+            <Route
+              path="/signup"
+              element={user ? <Navigate to="/home" replace /> : <Signup />}
             />
             <Route
               path="/home"
@@ -36,8 +36,54 @@ function AppContent() {
               }
             />
             <Route
+              path="/expenses"
+              element={
+                <ProtectedRoute>
+                  <div>Expenses Page</div>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <div>Profile Page</div>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/revenue"
+              element={
+                <ProtectedRoute>
+                  <div>Profile Page</div>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/budget"
+              element={
+                <ProtectedRoute>
+                  <div>Budget Page</div>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  <div>Reports Page</div>
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="*"
-              element={user ? <Navigate to="/home" replace /> : <Navigate to="/" replace />}
+              element={
+                user ? (
+                  <Navigate to="/home" replace />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
             />
           </Routes>
         </AnimatePresence>

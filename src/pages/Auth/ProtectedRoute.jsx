@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
 import UserContext from "../../context/userContext";
+import NavBar from "../../components/NavBar";
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useContext(UserContext);
@@ -14,7 +15,12 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/" replace />;
   }
 
-  return children;
+  return (
+    <div className="max-w-7xl mx-auto ">
+      <NavBar />
+      {children}
+    </div>
+  );
 };
 
 export default ProtectedRoute;
