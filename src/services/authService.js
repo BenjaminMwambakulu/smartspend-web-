@@ -1,10 +1,46 @@
-import { account } from "../config/appwrite";
+import { ID, Permission, Role } from "appwrite";
+import { account, tableDB } from "../config/appwrite";
 
-export async function registerWithEmail(name, email, password) {
+export async function registerWithEmail(email, password, name = "user") {
   try {
-    const user = await account.create({ name, email, password });
+    const cleanEmail = email.trim();
+
+    const user = await account.create({
+      userId: ID.unique(),
+      email: cleanEmail,
+      password: password,
+      name: name
+    });
+    console.log(user);
+
+    const session = await account.createEmailPasswordSession({
+      email: cleanEmail,
+      password: password,
+    });
+
+    console.log("Logged in session:", session);
+
+    const profile = await tableDB.createRow({
+      databaseId: "693729b80010142ed09e",
+      tableId: "profiles",
+      rowId: ID.unique(),
+      data: {
+        userId: user.$id,
+        username: name,
+        email: cleanEmail,
+        profilePicture: `https://avatar.iran.liara.run/username?username=${name}`,
+      },
+      permissions: [
+        Permission.read(Role.user(user.$id)),
+        Permission.write(Role.user(user.$id)),
+        Permission.update(Role.user(user.$id)),
+        Permission.delete(Role.user(user.$id)),
+      ],
+    });
+
     return { success: "User registered successfully", data: user };
   } catch (error) {
+    console.error(error);
     return { error: error.message };
   }
 }

@@ -1,36 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { motion } from "framer-motion";
 import { HiMiniWallet } from "react-icons/hi2";
-import { Link } from "react-router-dom";
-import { loginWithEmail } from "../../services/authService";
+import { Link, useNavigate } from "react-router-dom";
+import UserContext from "../../context/userContext";
 
 function Login() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { login, loading } = useContext(UserContext);
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
-    setSuccess("");
 
     try {
-      const res = await loginWithEmail(formData.email, formData.password);
-
-      if (res.error) {
-        setError(res.error);
-      } else {
-        setSuccess(res.success);
-      }
+      await login(formData.email, formData.password);
+      navigate("/home");
     } catch (error) {
       setError(error.message || "An unknown error occurred");
     }
-
-    setLoading(false);
   };
   const handleChange = (e) => {
     setFormData({
@@ -90,7 +81,8 @@ function Login() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             type="submit"
-            className="bg-secondary my-3 text-white py-3 rounded-lg hover:bg-primary-dark transition-colors"
+            disabled={loading}
+            className="bg-secondary my-3 text-white py-3 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
           >
             {loading ? "Loading..." : "Login"}
           </motion.button>

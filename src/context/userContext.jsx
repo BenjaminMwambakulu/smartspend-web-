@@ -31,36 +31,49 @@ export function UserProvider({ children }) {
 
   // Login
   const login = useCallback(async (email, password) => {
-    const response = await loginWithEmail(email, password);
-    if (response.error) throw new Error(response.error);
+    try {
+      const response = await loginWithEmail(email, password);
+      if (response.error) throw new Error(response.error);
 
-    const userData = await account.get();
-    setUser(userData);
-    return userData;
+      const userData = await account.get();
+      setUser(userData);
+      return userData;
+    } catch (error) {
+      throw error;
+    }
   }, []);
 
   // Register
   const register = useCallback(async (email, password, name) => {
-    const response = await registerWithEmail(name, email, password);
-    if (response.error) throw new Error(response.error);
+    try {
+      const response = await registerWithEmail(email, password, name);
+      if (response.error) throw new Error(response.error);
 
-    const session = await loginWithEmail(email, password);
-    if (session.error) throw new Error(session.error);
+      const session = await loginWithEmail(email, password);
+      if (session.error) throw new Error(session.error);
 
-    const userData = await account.get();
-    setUser(userData);
-    return userData;
+      const userData = await account.get();
+      setUser(userData);
+      return userData;
+    } catch (error) {
+      throw error;
+    }
   }, []);
 
   // Logout
   const logout = useCallback(async () => {
-    await appwriteLogout(); // call service logout
-    setUser(null);
+    try {
+      await appwriteLogout(); // call service logout
+      setUser(null);
+    } catch (error) {
+      console.error("Logout error:", error);
+      setUser(null); // Even if API fails, clear local state
+    }
   }, []);
 
   return (
     <UserContext.Provider
-      value={{ user, loading, checkAuth, login, register, logout }}
+      value={{ user, loading, login, register, logout }}
     >
       {children}
     </UserContext.Provider>

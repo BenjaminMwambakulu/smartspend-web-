@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Login from "./pages/Auth/Login";
@@ -21,9 +21,12 @@ function AppContent() {
           <Routes>
             <Route 
               path="/" 
-              element={user ? <Navigate to="/home" /> : <Login />} 
+              element={user ? <Navigate to="/home" replace /> : <Login />} 
             />
-            <Route path="/signup" element={<Signup />} />
+            <Route 
+              path="/signup" 
+              element={user ? <Navigate to="/home" replace /> : <Signup />} 
+            />
             <Route
               path="/home"
               element={
@@ -31,6 +34,10 @@ function AppContent() {
                   <Home />
                 </ProtectedRoute>
               }
+            />
+            <Route
+              path="*"
+              element={user ? <Navigate to="/home" replace /> : <Navigate to="/" replace />}
             />
           </Routes>
         </AnimatePresence>

@@ -1,20 +1,12 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
 import UserContext from "../../context/userContext";
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useContext(UserContext);
-  const [isChecking, setIsChecking] = useState(true);
-
-  useEffect(() => {
-    // Wait for auth check to complete
-    if (!loading) {
-      setIsChecking(false);
-    }
-  }, [loading]);
-
-  if (isChecking) {
-    return <div>Loading...</div>; // Or a spinner/loading component
+  // Show loading state while checking auth status
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
   // If user is not authenticated, redirect to login
