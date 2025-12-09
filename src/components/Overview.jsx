@@ -4,6 +4,7 @@ import { TbShoppingCartDollar } from "react-icons/tb";
 import { FaHandHoldingDollar } from "react-icons/fa6";
 import { getExpenses, getRevenue } from "../services/overviewService";
 import UserContext from "../context/userContext";
+import BudgetPie from "../pages/Home/budgetPie";
 
 export default function Overview() {
   const { user } = useContext(UserContext);
@@ -80,6 +81,7 @@ export default function Overview() {
 
       <div className="w-[40%] pl-6">
         <h1 className="text-3xl text-gray-700">Budget</h1>
+        <BudgetPie revenue={5000} expenses={3000} />
       </div>
     </div>
   );
