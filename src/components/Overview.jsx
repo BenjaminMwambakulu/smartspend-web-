@@ -2,7 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { AiFillDollarCircle } from "react-icons/ai";
 import { TbShoppingCartDollar } from "react-icons/tb";
 import { FaHandHoldingDollar } from "react-icons/fa6";
-import { getExpenses, getRevenue } from "../services/overviewService";
+import {
+  getBudget,
+  getExpenses,
+  getRevenue,
+} from "../services/overviewService";
 import UserContext from "../context/userContext";
 import BudgetPie from "../pages/Home/budgetPie";
 
@@ -11,14 +15,18 @@ export default function Overview() {
   const [expenses, setExpenses] = useState(0);
   const [revenue, setRevenue] = useState(0);
   const [balance, setBalance] = useState(0);
+  const [budget, setBudget] = useState(0);
+  const [budgetName, setBudgetName] = useState("");
 
   useEffect(() => {
     async function fetchData() {
       const data = await getExpenses(user.$id);
       const revenueData = await getRevenue(user.$id);
+      const budgetData = await getBudget(user.$id);
 
       console.log("Revenue Data:", revenueData);
       console.log("Expenses Data:", data);
+      console.log("Budget Data:", budgetData);
 
       if (revenueData && revenueData.rows) {
         const totalRevenue = revenueData.rows.reduce(
@@ -34,6 +42,11 @@ export default function Overview() {
           0
         );
         setExpenses(totalExpenses);
+      }
+      if (budgetData && budgetData.rows && budgetData.rows.length > 0) {
+        const totalBudget = budgetData.rows[0].amount || 0;
+        setBudget(totalBudget);
+        setBudgetName(budgetData.rows[0]["name"] || "");
       }
 
       setBalance(revenue - expenses);
@@ -80,8 +93,11 @@ export default function Overview() {
       </div>
 
       <div className="w-[40%] pl-6">
-        <h1 className="text-3xl text-gray-700">Budget</h1>
-        <BudgetPie revenue={5000} expenses={3000} />
+        <h1 className="text-3xl text-gray-700 mb-2 flex items-center">
+          Budget{" "}
+          <span className="text-secondary text-base ml-2">({budgetName})</span>
+        </h1>
+        <BudgetPie budget={budget} expenses={expenses} />
       </div>
     </div>
   );

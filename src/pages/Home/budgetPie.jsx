@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
 
-export default function BudgetPie({ expenses = 0, revenue = 0 }) {
+export default function BudgetPie({ expenses = 0, budget = 0 }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
-  const remaining = Math.max(revenue - expenses, 0);
+  const remaining = Math.max(budget - expenses, 0);
 
   useEffect(() => {
     if (chartRef.current) chartRef.current.destroy();
@@ -29,7 +29,7 @@ export default function BudgetPie({ expenses = 0, revenue = 0 }) {
         ctx.font = "bold 26px sans-serif";
         ctx.fillStyle = "#000";
         ctx.fillText(
-          `$${expenses.toLocaleString()}`,
+          `MK ${expenses.toLocaleString()}`,
           width / 2,
           height / 2 - 10
         );
@@ -58,7 +58,7 @@ export default function BudgetPie({ expenses = 0, revenue = 0 }) {
       },
       options: {
         responsive: true,
-        cutout: "75%", // hole size
+        cutout: "75%",
         plugins: {
           legend: { display: false },
         },
@@ -69,7 +69,7 @@ export default function BudgetPie({ expenses = 0, revenue = 0 }) {
     return () => {
       if (chartRef.current) chartRef.current.destroy();
     };
-  }, [expenses, revenue]);
+  }, [expenses, budget]);
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -77,11 +77,11 @@ export default function BudgetPie({ expenses = 0, revenue = 0 }) {
 
       <div className="flex w-full justify-between px-6 mt-2">
         <div className="text-center">
-          <p className="font-bold">${revenue.toLocaleString()}</p>
+          <p className="font-bold">MK {budget.toLocaleString()}</p>
           <p className="text-gray-500 text-sm">Monthly Limit</p>
         </div>
         <div className="text-center">
-          <p className="font-bold">${remaining.toLocaleString()}</p>
+          <p className="font-bold">MK {remaining.toLocaleString()}</p>
           <p className="text-gray-500 text-sm">Remaining</p>
         </div>
       </div>
