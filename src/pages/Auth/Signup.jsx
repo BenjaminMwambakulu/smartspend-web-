@@ -11,16 +11,21 @@ function Signup() {
     password: "",
   });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(""); // Added missing success state
   const { register, loading } = useContext(UserContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess(""); // Clear previous success message
 
     try {
       await register(formData.email, formData.password, formData.name);
-      navigate("/home");
+      setSuccess("Registration successful! Redirecting...");
+      setTimeout(() => {
+        navigate("/home");
+      }, 1000);
     } catch (error) {
       setError(error.message || "An unknown error occurred");
     }
@@ -48,14 +53,14 @@ function Signup() {
         </h1>
         <p className="mb-6 text-gray-500 text-center">Create your account</p>
         {error && (
-          <motion.pname
+          <motion.p
             initial={{ opacity: 0, translateY: -10 }}
             animate={{ opacity: 1, translateY: 0 }}
             transition={{ duration: 0.5 }}
             className="text-red-500 flex flex-wrap text-wrap max-w-full p-2 text-center bg-red-50 border border-red-500 rounded-md  mb-4"
           >
             {error}
-          </motion.pname>
+          </motion.p>
         )}
         {success && (
           <motion.p

@@ -49,9 +49,7 @@ export function UserProvider({ children }) {
       const response = await registerWithEmail(email, password, name);
       if (response.error) throw new Error(response.error);
 
-      const session = await loginWithEmail(email, password);
-      if (session.error) throw new Error(session.error);
-
+      // No need to create another session since registerWithEmail already does that
       const userData = await account.get();
       setUser(userData);
       return userData;
