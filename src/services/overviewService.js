@@ -7,7 +7,11 @@ export async function getExpenses(userID) {
     const res = await tableDB.listRows({
       databaseId: databaseID,
       tableId: "expenses",
-      queries: [Query.select(["amount"]), Query.equal("userId", userID)],
+      // FIX: Add 'transactionDate' to the selection
+      queries: [
+        Query.select(["amount", "transactionDate"]),
+        Query.equal("userId", userID),
+      ],
     });
 
     return res;
@@ -21,8 +25,12 @@ export async function getRevenue(userID) {
   try {
     const res = await tableDB.listRows({
       databaseId: databaseID,
-      tableId: "income",
-      queries: [Query.select(["amount"]), Query.equal("userId", userID)],
+      tableId: "income", // Assuming 'income' is the correct tableId for revenue
+      // FIX: Add 'receiptDate' to the selection
+      queries: [
+        Query.select(["amount", "receiptDate"]),
+        Query.equal("userId", userID),
+      ],
     });
     return res;
   } catch (error) {

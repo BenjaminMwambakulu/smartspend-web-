@@ -36,7 +36,7 @@ export default function BudgetPie({ expenses = 0, budget = 0 }) {
 
         // Sub-label
         ctx.font = "16px sans-serif";
-        ctx.fillStyle = "#ff9066";
+        ctx.fillStyle = "#007fff";
         ctx.fillText("Spent", width / 2, height / 2 + 18);
 
         ctx.restore();
@@ -50,7 +50,7 @@ export default function BudgetPie({ expenses = 0, budget = 0 }) {
         datasets: [
           {
             data: [expenses, remaining],
-            backgroundColor: ["#ff9066", "#ececec"],
+            backgroundColor: ["#007fff", "#ececec"],
             borderWidth: 0,
             borderRadius: 40, // smooth like the screenshot
           },
