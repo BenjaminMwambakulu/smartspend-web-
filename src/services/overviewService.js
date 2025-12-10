@@ -45,7 +45,7 @@ export async function getBudget(userID) {
       databaseId: databaseID,
       tableId: "budget",
       queries: [
-        Query.select(["*", "categoryId.name", "categoryId.type"]),
+        Query.select(["*", "category.categoryName", "category.type"]),
         Query.equal("userId", userID),
       ],
     });

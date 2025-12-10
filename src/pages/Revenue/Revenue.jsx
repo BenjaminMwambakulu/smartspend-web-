@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import PrimaryButton from "../../components/PrimaryButton";
 import { motion, AnimatePresence } from "framer-motion";
 import { getIncomeCategories } from "../../services/categoryService";
+import { fetchRevenueData } from "../../services/revenueService";
 import UserContext from "../../context/userContext";
 import SidePanel from "./RevenueSidePanel";
 import StatBuilder from "../../components/StatBuilder";
@@ -14,10 +15,21 @@ function Revenue() {
   const [categories, setCategories] = React.useState(null);
   const [totalRevenue, setTotalRevenue] = React.useState(0);
   const { user } = useContext(UserContext);
+  const [revenueData, setRevenueData] = useState([]);
   const fetchCategories = async () => {
     try {
       const data = await getIncomeCategories(user.$id);
       setCategories(data.rows);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const loadRevenueData = async () => {
+    try {
+      const data = await fetchRevenueData(user.$id);
+      setRevenueData(data.rows);
+      console.log(data.rows);
     } catch (error) {
       console.log(error);
     }
@@ -35,6 +47,7 @@ function Revenue() {
   useEffect(() => {
     fetchCategories();
     fetchTotalRevenue();
+    loadRevenueData();
   }, []);
 
   return (
