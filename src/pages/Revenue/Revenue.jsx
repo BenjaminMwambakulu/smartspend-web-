@@ -2,14 +2,15 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import PrimaryButton from "../../components/PrimaryButton";
 import { motion, AnimatePresence } from "framer-motion";
 import { getIncomeCategories } from "../../services/categoryService";
-import { addRevenue, fetchRevenueData } from "../../services/revenueService";
+import { addRevenue, fetchRevenueData, deleteRevenue } from "../../services/revenueService";
 import UserContext from "../../context/userContext";
 import SidePanel from "./RevenueSidePanel";
 import StatBuilder from "../../components/StatBuilder";
-import { AiFillDollarCircle } from "react-icons/ai";
+import { AiFillDollarCircle, AiFillEdit, AiFillDelete } from "react-icons/ai";
 import { MdCategory } from "react-icons/md";
 import { fetchDashboardData } from "../../services/dashboardService";
 import Table from "../../components/Table";
+import { toast } from "sonner";
 
 function Revenue() {
   const [isSidePanelOpen, setIsSidePanelOpen] = React.useState(false);
@@ -21,7 +22,9 @@ function Revenue() {
   const fetchCategories = async () => {
     try {
       const data = await getIncomeCategories(user.$id);
-      setCategories(data.rows);
+      if (data && data.rows) {
+        setCategories(data.rows);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -30,21 +33,65 @@ function Revenue() {
   const loadRevenueData = async () => {
     try {
       const data = await fetchRevenueData(user.$id);
-      console.log(data.rows); // Log the raw data // Corrected logic: Transform the raw data into an array where keys match table headers
+      console.log("Raw revenue data:", data); // Log the raw data
 
-      const transformedData = data.rows.map((row) => ({
-        // Map API fields to your table headers
-        "Source/Category":
-          row.category?.length > 0 ? row.category[0].name : "N/A", // Assuming category is an array of objects
-        Amount: `MK ${row.amount.toFixed(2)}`, // Format amount for display
-        Date: new Date(row.receiptDate).toLocaleDateString(), // Format date
-        Notes: row.notes, // Include a placeholder for the Actions column
-        Actions: "...", // This should be replaced with an Action button/component later
-      }));
+      if (data && data.rows) {
+        const transformedData = data.rows.map((row) => ({
+          // Map API fields to your table headers
+          "Source/Category":
+            row.category && row.category.length > 0 ? row.category[0].categoryName : "N/A",
+          Amount: `MK ${parseFloat(row.amount).toFixed(2)}`,
+          Date: new Date(row.receiptDate).toLocaleDateString(),
+          Notes: row.notes || "",
+          Actions: (
+            <div className="flex space-x-2">
+              <button 
+                onClick={() => handleEdit(row)}
+                className="p-2 rounded-md bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+              >
+                <AiFillEdit />
+              </button>
+              <button 
+                onClick={() => handleDelete(row.$id)}
+                className="p-2 rounded-md bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+              >
+                <AiFillDelete />
+              </button>
+            </div>
+          ),
+        }));
 
-      setRevenueData(transformedData);
+        setRevenueData(transformedData);
+      } else {
+        setRevenueData([]);
+      }
     } catch (error) {
-      console.log(error);
+      console.log("Error loading revenue data:", error);
+      setRevenueData([]);
+    }
+  };
+
+  const handleEdit = (rowData) => {
+    // TODO: Implement edit functionality
+    console.log("Edit row:", rowData);
+    toast.info("Edit functionality to be implemented");
+  };
+
+  const handleDelete = async (incomeId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this revenue entry?");
+    if (confirmDelete) {
+      try {
+        const result = await deleteRevenue(incomeId);
+        if (result) {
+          toast.success("Revenue entry deleted successfully");
+          reloadData(); // Refresh the data
+        } else {
+          toast.error("Failed to delete revenue entry");
+        }
+      } catch (error) {
+        console.error("Error deleting revenue:", error);
+        toast.error("Error deleting revenue entry");
+      }
     }
   };
 
@@ -65,6 +112,13 @@ function Revenue() {
     }
   }, [user?.$id]); // Dependency on user.$id ensures data loads after user context is ready
 
+  // Add reload function to refresh data after adding new revenue
+  const reloadData = () => {
+    loadRevenueData();
+    fetchTotalRevenue();
+    fetchCategories();
+  };
+
   return (
     <div className="my-8">
       <div className="flex justify-between items-center">
@@ -84,7 +138,10 @@ function Revenue() {
           {isSidePanelOpen && (
             <SidePanel
               categories={categories}
-              onClose={() => setIsSidePanelOpen(false)}
+              onClose={() => {
+                setIsSidePanelOpen(false);
+                reloadData(); // Reload data when panel closes
+              }}
             />
           )}
         </AnimatePresence>
@@ -100,7 +157,7 @@ function Revenue() {
         />
         <StatBuilder
           title={"Total Revenue Categories"}
-          value={categories ? categories.length : 0}
+          value={categories && categories.length ? categories.length : 0}
           icon={<MdCategory />}
           className={"ml-10"}
           color={"text-blue-500"}
