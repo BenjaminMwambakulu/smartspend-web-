@@ -4,10 +4,11 @@ import { toast } from "sonner";
 import UserContext from "../../context/userContext";
 import PrimaryButton from "../../components/PrimaryButton";
 import { AiFillEdit, AiFillDelete } from "react-icons/ai";
+import { FaPlus } from "react-icons/fa";
 import Table from "../../components/Table";
 import BudgetSlider from "../../components/BudgetSlider";
 import BudgetSidePanel from "./BudgetSidePanel";
-import { fetchBudgets, deleteBudget } from "../../services/budgetService";
+import { fetchBudgets, deleteBudget, updateBudget } from "../../services/budgetService";
 import { getExpenseCategories } from "../../services/categoryService";
 
 /**
@@ -97,6 +98,48 @@ function BudgetsPage() {
   };
 
   /**
+   * Handle quick add expense action - opens a prompt to quickly add an expense to a budget
+   * @param {Object} budget - The budget to add an expense to
+   */
+  const handleQuickAddExpense = async (budget) => {
+    const amount = prompt(`Enter expense amount for budget "${budget.name}":`);
+    
+    if (amount === null) {
+      // User cancelled the prompt
+      return;
+    }
+    
+    const parsedAmount = parseFloat(amount);
+    
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      toast.error("Please enter a valid positive number");
+      return;
+    }
+    
+    try {
+      // Calculate new spent amount
+      const currentSpent = budget.spentAmount || 0;
+      const newSpent = currentSpent + parsedAmount;
+      
+      // Update the budget with new spent amount
+      const result = await updateBudget(budget.$id, {
+        ...budget,
+        spentAmount: newSpent
+      });
+      
+      if (result) {
+        toast.success(`Added MK ${parsedAmount.toFixed(2)} to budget "${budget.name}"`);
+        reloadData(); // Refresh the data
+      } else {
+        toast.error("Failed to update budget");
+      }
+    } catch (error) {
+      console.error("Error updating budget:", error);
+      toast.error("Error updating budget");
+    }
+  };
+
+  /**
    * Reload all data
    */
   const reloadData = () => {
@@ -116,6 +159,7 @@ function BudgetsPage() {
   const budgetTableData = budgets.map((budget) => ({
     "Name": budget.name,
     "Amount": `MK ${parseFloat(budget.amount).toLocaleString()}`,
+    "Spent": `MK ${parseFloat(budget.spentAmount || 0).toLocaleString()}`,
     "Category": budget.category && budget.category.length > 0 
       ? budget.category.map(cat => cat.categoryName).join(", ") 
       : "No category",
@@ -124,6 +168,13 @@ function BudgetsPage() {
     "Notes": budget.notes || "",
     "Actions": (
       <div className="flex space-x-2">
+        <button 
+          onClick={() => handleQuickAddExpense(budget)}
+          className="p-2 rounded-md bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+          title="Quick Add Expense"
+        >
+          <FaPlus />
+        </button>
         <button 
           onClick={() => handleEdit(budget)}
           className="p-2 rounded-md bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
@@ -215,7 +266,7 @@ function BudgetsPage() {
         {!loading && (
           budgetTableData.length > 0 ? (
             <Table 
-              headers={["Name", "Amount", "Category", "Start Date", "End Date", "Notes", "Actions"]} 
+              headers={["Name", "Amount", "Spent", "Category", "Start Date", "End Date", "Notes", "Actions"]} 
               data={budgetTableData} 
             />
           ) : (

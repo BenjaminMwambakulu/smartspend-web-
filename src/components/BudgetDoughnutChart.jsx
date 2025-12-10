@@ -15,9 +15,8 @@ const BudgetDoughnutChart = ({ budget }) => {
     const ctx = canvasRef.current.getContext("2d");
 
     // Calculate spent and remaining values
-    // For now, we're using dummy values, but in a full implementation,
-    // this would be calculated based on actual expenses
-    const spent = 0; // This would be replaced with actual spent amount
+    // Using the spentAmount column from the budget
+    const spent = budget.spentAmount || 0;
     const remaining = budget.amount - spent;
     const spentPercentage = budget.amount > 0 ? (spent / budget.amount) * 100 : 0;
     const remainingPercentage = 100 - spentPercentage;

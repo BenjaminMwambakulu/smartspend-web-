@@ -2,9 +2,10 @@ import React, { useContext, useEffect, useState } from "react";
 import { AiFillDollarCircle } from "react-icons/ai";
 import { TbShoppingCartDollar } from "react-icons/tb";
 import { FaHandHoldingDollar } from "react-icons/fa6";
-import { fetchDashboardData } from "../services/dashboardService"; // Updated import
+import { fetchDashboardData } from "../services/dashboardService";
+import { fetchBudgets } from "../services/budgetService";
 import UserContext from "../context/userContext";
-import BudgetPie from "../pages/Home/budgetPie";
+import BudgetDoughnutChart from "./BudgetDoughnutChart";
 import BarGraph from "../pages/Home/barGraph";
 
 // Proper money formatting
@@ -28,8 +29,7 @@ export default function Overview() {
   const [balance, setBalance] = useState(0);
 
   // States for budget tracking
-  const [budget, setBudget] = useState(0);
-  const [budgetName, setBudgetName] = useState("");
+  const [budgets, setBudgets] = useState([]);
 
   // New states for monthly aggregated data for the bar graph
   const [monthlyExpenses, setMonthlyExpenses] = useState({});
@@ -43,8 +43,6 @@ export default function Overview() {
         setExpenses(data.expenses);
         setRevenue(data.revenue);
         setBalance(data.balance);
-        setBudget(data.budget);
-        setBudgetName(data.budgetName);
         setMonthlyExpenses(data.monthlyExpenses);
         setMonthlyRevenue(data.monthlyRevenue);
       } catch (error) {
@@ -52,7 +50,19 @@ export default function Overview() {
       }
     }
     fetchData();
+    fetchBudgetData();
   }, [user.$id]);
+  
+  async function fetchBudgetData() {
+    try {
+      const budgetData = await fetchBudgets(user.$id);
+      if (budgetData && budgetData.rows) {
+        setBudgets(budgetData.rows);
+      }
+    } catch (error) {
+      console.error("Error loading budget data:", error);
+    }
+  }
 
   return (
     <div className="p-8 bg-white rounded-3xl flex justify-between">
@@ -89,11 +99,25 @@ export default function Overview() {
       </div>
 
       <div className="w-[40%] pl-6">
-        <h1 className="text-3xl text-gray-700 mb-2 flex items-center">
-          Budget{" "}
-          <span className="text-secondary text-base ml-2">({budgetName})</span>
-        </h1>
-        <BudgetPie budget={budget} expenses={expenses} />
+        <h1 className="text-3xl text-gray-700 mb-2">Budgets</h1>
+        {budgets.length > 0 ? (
+          <div className="w-full overflow-x-auto pb-4">
+            <div className="flex space-x-6 min-w-max py-2">
+              {budgets.map((budget) => (
+                <div 
+                  key={budget.$id} 
+                  className="shrink-0 w-64 bg-white rounded-lg shadow p-4"
+                >
+                  <BudgetDoughnutChart budget={budget} />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            No budgets available. Add a budget to get started.
+          </div>
+        )}
       </div>
     </div>
   );

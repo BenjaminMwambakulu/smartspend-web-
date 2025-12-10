@@ -6,11 +6,16 @@ import {
 } from "../../services/categoryService";
 import UserContext from "../../context/userContext";
 import { addExpense } from "../../services/expenseService";
+import { fetchBudgets } from "../../services/budgetService";
+import { updateBudget } from "../../services/budgetService";
 
 // Added expenseItem prop for editing
 function ExpenseSidePanel({ categories, onClose, expenseItem }) {
   const [showNewInput, setShowNewInput] = useState(false);
   const [newCategory, setNewCategory] = useState("");
+  const [budgets, setBudgets] = useState([]);
+  const [addToBudget, setAddToBudget] = useState(false);
+  const [selectedBudget, setSelectedBudget] = useState("");
   const { user } = useContext(UserContext);
   
   // Initialize form data, either empty or with existing expense data for editing
@@ -46,6 +51,24 @@ function ExpenseSidePanel({ categories, onClose, expenseItem }) {
   });
 
   const panelRef = useRef(null);
+
+  // Fetch budgets for the user
+  useEffect(() => {
+    const fetchUserBudgets = async () => {
+      try {
+        const budgetData = await fetchBudgets(user.$id);
+        if (budgetData && budgetData.rows) {
+          setBudgets(budgetData.rows);
+        }
+      } catch (error) {
+        console.error("Error fetching budgets:", error);
+      }
+    };
+
+    if (user && user.$id) {
+      fetchUserBudgets();
+    }
+  }, [user]);
 
   // Close panel when clicking outside
   useEffect(() => {
@@ -136,6 +159,29 @@ function ExpenseSidePanel({ categories, onClose, expenseItem }) {
     };
 
     const data = await addExpense(submissionData);
+    
+    // If user wants to add to budget and has selected a budget
+    if (addToBudget && selectedBudget && budgets.length > 0) {
+      const budgetToUpdate = budgets.find(budget => 
+        budget.$id === selectedBudget || budget.id === selectedBudget
+      );
+      
+      if (budgetToUpdate) {
+        // Calculate new spent amount by adding current expense to existing spent amount
+        const currentSpent = budgetToUpdate.spentAmount || 0;
+        const newSpent = currentSpent + parseFloat(formData.amount);
+        
+        // Update the budget with new spent amount
+        try {
+          await updateBudget(selectedBudget, {
+            ...budgetToUpdate,
+            spentAmount: newSpent
+          });
+        } catch (error) {
+          console.error("Error updating budget:", error);
+        }
+      }
+    }
 
     console.log("Submitting data:", submissionData);
 
@@ -216,6 +262,42 @@ function ExpenseSidePanel({ categories, onClose, expenseItem }) {
               onChange={handleInputChange}
             />
           </div>
+
+          {/* Add to Budget Toggle */}
+          {budgets.length > 0 && (
+            <div className="mb-4">
+              <div className="flex items-center mb-2">
+                <input
+                  type="checkbox"
+                  id="add-to-budget"
+                  checked={addToBudget}
+                  onChange={(e) => setAddToBudget(e.target.checked)}
+                  className="mr-2 h-4 w-4 text-blue-600 rounded"
+                />
+                <label htmlFor="add-to-budget" className="block text-gray-700 font-medium">
+                  Add to Budget
+                </label>
+              </div>
+              
+              {addToBudget && (
+                <select
+                  value={selectedBudget}
+                  onChange={(e) => setSelectedBudget(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg p-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Select a budget</option>
+                  {budgets.map((budget) => (
+                    <option 
+                      key={budget.$id || budget.id} 
+                      value={budget.$id || budget.id}
+                    >
+                      {budget.name} (Current spent: {budget.spentAmount || 0})
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+          )}
 
           {/* Category Field */}
           <div className="mb-4">
