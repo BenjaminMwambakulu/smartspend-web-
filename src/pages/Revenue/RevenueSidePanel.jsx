@@ -107,7 +107,7 @@ function SidePanel({ categories, onClose }) {
       amount: parseFloat(formData.amount),
       receiptDate: new Date(formData.receiptDate).toISOString(),
       notes: formData.notes || null,
-      category: formData.category || null,
+      category: formData.category ? [formData.category] : [], // Pass category as array
       userId: user.$id,
     };
 
