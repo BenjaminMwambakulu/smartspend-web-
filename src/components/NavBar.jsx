@@ -9,7 +9,7 @@ export default function NavBar() {
     { name: "Revenue", path: "/revenue" },
     { name: "Expenses", path: "/expenses" },
     { name: "Budget", path: "/budget" },
-    { name: "Reports", path: "/reports" },
+    { name: "Goals", path: "/goals" },
   ];
   const Location = window.location.pathname;
 

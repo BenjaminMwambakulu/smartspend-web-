@@ -9,6 +9,7 @@ import ProtectedRoute from "./pages/Auth/ProtectedRoute";
 import Revenue from "./pages/Revenue/Revenue";
 import Expenses from "./pages/Expenses/Expenses";
 import BudgetsPage from "./pages/Budgets/BudgetsPage";
+import GoalsPage from "./pages/Goals/GoalsPage";
 
 function AppContent() {
   const { user, loading } = useContext(UserContext);
@@ -66,15 +67,15 @@ function AppContent() {
               path="/budget"
               element={
                 <ProtectedRoute>
-                  <BudgetsPage/>
+                  <BudgetsPage />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/reports"
+              path="/goals"
               element={
                 <ProtectedRoute>
-                  <div>Reports Page</div>
+                  <GoalsPage />
                 </ProtectedRoute>
               }
             />
