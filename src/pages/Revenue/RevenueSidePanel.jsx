@@ -6,19 +6,43 @@ import {
 } from "../../services/categoryService";
 import UserContext from "../../context/userContext";
 import { addRevenue } from "../../services/revenueService";
-function SidePanel({ categories, onClose }) {
+
+// Added revenueItem prop for editing
+function SidePanel({ categories, onClose, revenueItem }) {
   const [showNewInput, setShowNewInput] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const { user } = useContext(UserContext);
-  const [formData, setFormData] = useState({
-    amount: "",
-    receiptDate:
-      new Date().toISOString().split("T")[0] +
-      "T" +
-      new Date().toTimeString().split(" ")[0].slice(0, 5),
-    notes: "",
-    category: "",
-    userId: "",
+  
+  // Initialize form data, either empty or with existing revenue data for editing
+  const [formData, setFormData] = useState(() => {
+    if (revenueItem) {
+      // Editing mode - populate with existing data
+      return {
+        amount: revenueItem.amount || "",
+        receiptDate: revenueItem.receiptDate 
+          ? new Date(revenueItem.receiptDate).toISOString().slice(0, 16)
+          : new Date().toISOString().split("T")[0] +
+            "T" +
+            new Date().toTimeString().split(" ")[0].slice(0, 5),
+        notes: revenueItem.notes || "",
+        category: revenueItem.category && revenueItem.category[0] 
+          ? revenueItem.category[0].$id || revenueItem.category[0].id || ""
+          : "",
+        userId: user.$id,
+      };
+    } else {
+      // Creation mode - initialize with default values
+      return {
+        amount: "",
+        receiptDate:
+          new Date().toISOString().split("T")[0] +
+          "T" +
+          new Date().toTimeString().split(" ")[0].slice(0, 5),
+        notes: "",
+        category: "",
+        userId: user.$id,
+      };
+    }
   });
 
   const panelRef = useRef(null);
@@ -139,9 +163,11 @@ function SidePanel({ categories, onClose }) {
         transition={{ type: "tween", duration: 0.3 }}
         className="min-h-screen w-full md:w-[30%] lg:w-[20%] bg-white shadow-lg p-6 overflow-y-auto"
       >
-        {/* Header */}
+        {/* Header - Changed to show Edit/New based on mode */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-xl font-medium">Add New Revenue</h1>
+          <h1 className="text-xl font-medium">
+            {revenueItem ? "Edit Revenue" : "Add New Revenue"}
+          </h1>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 text-2xl"
@@ -286,7 +312,7 @@ function SidePanel({ categories, onClose }) {
               type="submit"
               className="flex-1 bg-blue-500 hover:bg-blue-500 text-white py-2 px-4 rounded-lg transition"
             >
-              Save Revenue
+              {revenueItem ? "Update Revenue" : "Save Revenue"}
             </motion.button>
           </div>
         </form>

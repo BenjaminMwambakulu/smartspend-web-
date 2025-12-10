@@ -20,6 +20,9 @@ function Revenue() {
   const { user } = useContext(UserContext);
   const [revenueData, setRevenueData] = useState([]);
   
+  // State for editing
+  const [editingRevenue, setEditingRevenue] = useState(null);
+  
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -72,7 +75,7 @@ function Revenue() {
           Actions: (
             <div className="flex space-x-2">
               <button 
-                onClick={() => handleEdit(row)}
+                onClick={() => handleEdit(row)} // Pass the whole row data
                 className="p-2 rounded-md bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
               >
                 <AiFillEdit />
@@ -101,10 +104,10 @@ function Revenue() {
     }
   };
 
-  const handleEdit = (rowData) => {
-    // TODO: Implement edit functionality
-    console.log("Edit row:", rowData);
-    toast.info("Edit functionality to be implemented");
+  // Updated handleEdit to store the revenue data for editing
+  const handleEdit = (revenueData) => {
+    setEditingRevenue(revenueData);
+    setIsSidePanelOpen(true);
   };
 
   const handleDelete = async (incomeId) => {
@@ -170,6 +173,7 @@ function Revenue() {
         <PrimaryButton
           text={"New Row"}
           onClick={() => {
+            setEditingRevenue(null); // Reset editing state
             setIsSidePanelOpen(!isSidePanelOpen);
             console.log("Side panel opened");
           }}
@@ -179,8 +183,10 @@ function Revenue() {
           {isSidePanelOpen && (
             <SidePanel
               categories={categories}
+              revenueItem={editingRevenue} // Pass revenue data for editing
               onClose={() => {
                 setIsSidePanelOpen(false);
+                setEditingRevenue(null); // Reset editing state
                 reloadData(); // Reload data when panel closes
               }}
             />
