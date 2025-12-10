@@ -32,7 +32,7 @@ function GoalsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize] = useState(10);
   const [totalDocuments, setTotalDocuments] = useState(0);
-  
+
   // Slider state
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderRef = useRef(null);
@@ -49,7 +49,7 @@ function GoalsPage() {
     try {
       // Calculate offset based on current page and page size
       const offset = (page - 1) * pageSize;
-      
+
       // Fetch paginated data from Appwrite
       const data = await tableDB.listRows({
         databaseId: databaseID,
@@ -57,8 +57,8 @@ function GoalsPage() {
         queries: [
           Query.equal("userId", user.$id),
           Query.limit(pageSize),
-          Query.offset(offset)
-        ]
+          Query.offset(offset),
+        ],
       });
 
       // Update pagination metadata
@@ -94,15 +94,17 @@ function GoalsPage() {
    * @param {string} goalId - The ID of the goal to delete
    */
   const handleDelete = async (goalId) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this goal?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this goal?"
+    );
     if (confirmDelete) {
       try {
         const result = await tableDB.deleteRow({
           databaseId: databaseID,
           tableId: "goals",
-          rowId: goalId
+          rowId: goalId,
         });
-        
+
         if (result) {
           toast.success("Goal deleted successfully");
           loadGoals(currentPage); // Refresh the data
@@ -134,7 +136,7 @@ function GoalsPage() {
       // Add userId to form data
       const dataWithUserId = {
         ...formData,
-        userId: user.$id
+        userId: user.$id,
       };
 
       let result;
@@ -144,7 +146,7 @@ function GoalsPage() {
           databaseId: databaseID,
           tableId: "goals",
           rowId: goalId,
-          data: dataWithUserId
+          data: dataWithUserId,
         });
         toast.success("Goal updated successfully");
       } else {
@@ -153,7 +155,7 @@ function GoalsPage() {
           databaseId: databaseID,
           tableId: "goals",
           rowId: ID.unique(),
-          data: dataWithUserId
+          data: dataWithUserId,
         });
         toast.success("Goal created successfully");
       }
@@ -164,7 +166,7 @@ function GoalsPage() {
       }
     } catch (error) {
       console.error("Error saving goal:", error);
-      toast.error(`Error ${editingGoal ? 'updating' : 'creating'} goal`);
+      toast.error(`Error ${editingGoal ? "updating" : "creating"} goal`);
     }
   };
 
@@ -175,19 +177,19 @@ function GoalsPage() {
   const handleQuickContributionSubmit = async (formData) => {
     try {
       const { additionalAmount } = formData;
-      
+
       // Calculate new contributed amount
       const currentAmount = quickUpdateGoal.amountContributed || 0;
       const newAmount = currentAmount + parseFloat(additionalAmount);
-      
+
       // Update the goal with new contributed amount
       const result = await tableDB.updateRow({
         databaseId: databaseID,
         tableId: "goals",
         rowId: quickUpdateGoal.$id,
         data: {
-          amountContributed: newAmount
-        }
+          amountContributed: newAmount,
+        },
       });
 
       if (result) {
@@ -216,11 +218,11 @@ function GoalsPage() {
   // Auto-slide carousel
   useEffect(() => {
     if (goals.length <= 1) return;
-    
+
     const interval = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % goals.length);
+      setCurrentSlide((prev) => (prev + 1) % goals.length);
     }, 5000);
-    
+
     return () => clearInterval(interval);
   }, [goals.length]);
 
@@ -229,7 +231,7 @@ function GoalsPage() {
     if (sliderRef.current) {
       sliderRef.current.scrollTo({
         left: currentSlide * 280, // Width of each slide (256px + margins)
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   }, [currentSlide]);
@@ -247,25 +249,34 @@ function GoalsPage() {
       <div className="">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Financial Goals</h1>
-            <p className="text-gray-600 mt-2">Track and manage your savings targets</p>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Financial Goals
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Track and manage your savings targets
+            </p>
           </div>
-          <PrimaryButton text={'+ New Goal'} onClick={() => setIsSidePanelOpen(true)}/>
+          <PrimaryButton
+            text={"+ New Goal"}
+            onClick={() => setIsSidePanelOpen(true)}
+          />
         </div>
 
         {/* Donut Chart Carousel */}
         {goals && goals.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Goal Progress</h2>
-            <div 
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Goal Progress
+            </h2>
+            <div
               ref={sliderRef}
               className="w-full overflow-x-auto pb-4 scrollbar-hide"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               <div className="flex space-x-6 min-w-max">
                 {goals.map((goal, index) => (
-                  <div 
-                    key={goal.$id} 
+                  <div
+                    key={goal.$id}
                     className="shrink-0 w-64 bg-white rounded-lg shadow p-4"
                   >
                     <GoalDonut goal={goal} />
@@ -273,7 +284,7 @@ function GoalsPage() {
                 ))}
               </div>
             </div>
-            
+
             {goals.length > 1 && (
               <div className="flex justify-center mt-4 space-x-2">
                 {goals.map((_, index) => (
@@ -281,7 +292,7 @@ function GoalsPage() {
                     key={index}
                     onClick={() => setCurrentSlide(index)}
                     className={`w-3 h-3 rounded-full ${
-                      index === currentSlide ? 'bg-blue-600' : 'bg-gray-300'
+                      index === currentSlide ? "bg-blue-600" : "bg-gray-300"
                     }`}
                   />
                 ))}
@@ -302,14 +313,12 @@ function GoalsPage() {
             <div className="text-gray-500 text-sm font-medium">In Progress</div>
             <div className="text-2xl font-bold text-blue-600 mt-2">
               {goals
-                ? goals.filter(
-                    (g) => {
-                      const contributed = g.amountContributed || 0;
-                      const target = g.targetAmount || 1;
-                      const progress = (contributed / target) * 100;
-                      return progress > 0 && progress < 100;
-                    }
-                  ).length
+                ? goals.filter((g) => {
+                    const contributed = g.amountContributed || 0;
+                    const target = g.targetAmount || 1;
+                    const progress = (contributed / target) * 100;
+                    return progress > 0 && progress < 100;
+                  }).length
                 : 0}
             </div>
           </div>
@@ -329,11 +338,14 @@ function GoalsPage() {
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <div className="text-gray-500 text-sm font-medium">Total Saved</div>
             <div className="text-2xl font-bold text-gray-900 mt-2">
-              $
+              <sup>MK</sup>
               {goals
                 ? goals
                     .reduce((sum, g) => sum + (g.amountContributed || 0), 0)
-                    .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    .toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
                 : 0}
             </div>
           </div>
@@ -341,8 +353,8 @@ function GoalsPage() {
 
         {/* Goals Table */}
         <div className="mb-6">
-          <GoalsTable 
-            goalsData={goals} 
+          <GoalsTable
+            goalsData={goals}
             onEdit={handleEdit}
             onDelete={handleDelete}
             onQuickUpdate={handleQuickUpdate}
@@ -380,8 +392,12 @@ function GoalsPage() {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No goals yet</h3>
-            <p className="text-gray-600 mb-6">Start by creating your first financial goal</p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              No goals yet
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Start by creating your first financial goal
+            </p>
             <PrimaryButton onClick={() => setIsSidePanelOpen(true)}>
               Create Your First Goal
             </PrimaryButton>

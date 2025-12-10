@@ -13,10 +13,10 @@ const GoalsTable = ({ goalsData, onEdit, onDelete, onQuickUpdate }) => {
   // Transform data for the table component
   const transformedData = goalsData.map((goal) => ({
     "Goal Name": goal.goalName,
-    "Target Amount": `$${parseFloat(goal.targetAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+    "Target Amount": `MK ${parseFloat(goal.targetAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
     "Deadline": goal.deadline ? new Date(goal.deadline).toLocaleDateString() : "No deadline",
     "Priority": goal.priority ? goal.priority.charAt(0).toUpperCase() + goal.priority.slice(1) : "None",
-    "Amount Contributed": `$${parseFloat(goal.amountContributed || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+    "Amount Contributed": `MK ${parseFloat(goal.amountContributed || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
     "Created At": new Date(goal.$createdAt).toLocaleDateString(),
     "Actions": (
       <div className="flex space-x-2">
