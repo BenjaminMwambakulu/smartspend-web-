@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import PrimaryButton from "../../components/PrimaryButton";
 import { motion, AnimatePresence } from "framer-motion";
 import { getIncomeCategories } from "../../services/categoryService";
-import { addRevenue, fetchRevenueData, deleteRevenue } from "../../services/revenueService";
+import { addRevenue, fetchPaginatedRevenueData, deleteRevenue } from "../../services/revenueService";
 import UserContext from "../../context/userContext";
 import SidePanel from "./RevenueSidePanel";
 import StatBuilder from "../../components/StatBuilder";
@@ -10,6 +10,7 @@ import { AiFillDollarCircle, AiFillEdit, AiFillDelete } from "react-icons/ai";
 import { MdCategory } from "react-icons/md";
 import { fetchDashboardData } from "../../services/dashboardService";
 import Table from "../../components/Table";
+import Pagination from "../../components/Pagination";
 import { toast } from "sonner";
 
 function Revenue() {
@@ -18,6 +19,14 @@ function Revenue() {
   const [totalRevenue, setTotalRevenue] = React.useState(0);
   const { user } = useContext(UserContext);
   const [revenueData, setRevenueData] = useState([]);
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalDocuments, setTotalDocuments] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const fetchCategories = async () => {
     try {
@@ -30,12 +39,29 @@ function Revenue() {
     }
   };
 
-  const loadRevenueData = async () => {
+  /**
+   * Load paginated revenue data
+   * Uses Appwrite's pagination with limit and offset
+   */
+  const loadRevenueData = async (page = 1) => {
+    if (!user?.$id) return;
+    
+    setLoading(true);
+    setError(null);
+    
     try {
-      const data = await fetchRevenueData(user.$id);
-      console.log("Raw revenue data:", data); // Log the raw data
-
+      // Calculate offset based on current page and page size
+      const offset = (page - 1) * pageSize;
+      
+      // Fetch paginated data from Appwrite
+      const data = await fetchPaginatedRevenueData(user.$id, pageSize, offset);
+      
+      // Update pagination metadata
+      setTotalDocuments(data.total);
+      setTotalPages(Math.ceil(data.total / pageSize));
+      
       if (data && data.rows) {
+        // Transform data for display in table
         const transformedData = data.rows.map((row) => ({
           // Map API fields to your table headers
           "Source/Category":
@@ -67,7 +93,11 @@ function Revenue() {
       }
     } catch (error) {
       console.log("Error loading revenue data:", error);
+      setError("Failed to load revenue data");
       setRevenueData([]);
+      toast.error("Error loading revenue data");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -104,20 +134,31 @@ function Revenue() {
     }
   };
 
+  /**
+   * Handle page change
+   * @param {number} page - The page number to navigate to
+   */
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    loadRevenueData(page);
+  };
+
+  /**
+   * Reload all data including pagination
+   */
+  const reloadData = () => {
+    loadRevenueData(currentPage);
+    fetchTotalRevenue();
+    fetchCategories();
+  };
+
   useEffect(() => {
     if (user?.$id) {
       fetchCategories();
       fetchTotalRevenue();
-      loadRevenueData();
+      loadRevenueData(currentPage);
     }
-  }, [user?.$id]); // Dependency on user.$id ensures data loads after user context is ready
-
-  // Add reload function to refresh data after adding new revenue
-  const reloadData = () => {
-    loadRevenueData();
-    fetchTotalRevenue();
-    fetchCategories();
-  };
+  }, [user?.$id, pageSize]); // Dependency on user.$id and pageSize
 
   return (
     <div className="my-8">
@@ -163,8 +204,36 @@ function Revenue() {
           color={"text-blue-500"}
         />
       </div>
+      
+      {/* Loading indicator */}
+      {loading && (
+        <div className="flex justify-center my-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        </div>
+      )}
+      
+      {/* Error message */}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
+      
       {/* Table section */}
-      <Table data={revenueData} />
+      {!loading && <Table data={revenueData} />}
+      
+      {/* Pagination controls */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        loading={loading}
+      />
+      
+      {/* Pagination info */}
+      <div className="mt-4 text-sm text-gray-500 text-center">
+        Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalDocuments)} of {totalDocuments} entries
+      </div>
     </div>
   );
 }

@@ -19,6 +19,29 @@ export async function fetchRevenueData(userID) {
   }
 }
 
+// New function for fetching paginated revenue data
+export async function fetchPaginatedRevenueData(userID, limit = 10, offset = 0) {
+  try {
+    // Fetch revenue data with pagination
+    const revenueData = await tableDB.listRows({
+      databaseId: databaseID,
+      tableId: "income",
+      queries: [
+        Query.equal("userId", userID),
+        Query.limit(limit),
+        Query.offset(offset),
+        Query.orderDesc("$createdAt"), // Order by creation date, newest first
+        Query.select(["*", "category.categoryName"]),
+      ],
+    });
+    
+    return revenueData;
+  } catch (error) {
+    console.error("Error fetching paginated revenue data:", error);
+    throw error;
+  }
+}
+
 export async function addRevenue(revenueData = {}) {
   if (!revenueData) return new Error("Invalid revenue data");
   try {
