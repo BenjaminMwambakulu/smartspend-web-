@@ -5,7 +5,7 @@ import { tableDB } from "../../config/appwrite";
 import { databaseID } from "../../config/db";
 import { Query } from "appwrite";
 import Overview from "../../components/Overview";
-import Goals from "./Goals";
+import Goals from "../../components/Goals";
 
 function Home() {
   const { user, logout } = useContext(UserContext);

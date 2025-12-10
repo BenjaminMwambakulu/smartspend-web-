@@ -6,6 +6,7 @@ import Signup from "./pages/Auth/Signup";
 import Home from "./pages/Home/Home";
 import { UserProvider, default as UserContext } from "./context/userContext";
 import ProtectedRoute from "./pages/Auth/ProtectedRoute";
+import Revenue from "./pages/Revenue/Revenue";
 
 function AppContent() {
   const { user, loading } = useContext(UserContext);
@@ -55,7 +56,7 @@ function AppContent() {
               path="/revenue"
               element={
                 <ProtectedRoute>
-                  <div>Profile Page</div>
+                  <Revenue />
                 </ProtectedRoute>
               }
             />

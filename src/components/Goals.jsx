@@ -1,6 +1,6 @@
 import React from "react";
-import UserContext from "../../context/userContext";
-import { getGoals } from "../../services/goalsService";
+import UserContext from "../context/userContext";
+import { getGoals } from "../services/goalsService";
 import { GiStairsGoal } from "react-icons/gi";
 import { AiFillClockCircle } from "react-icons/ai";
 import { IoBatteryFullOutline } from "react-icons/io5";
