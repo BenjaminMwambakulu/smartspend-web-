@@ -4,10 +4,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getIncomeCategories } from "../../services/categoryService";
 import UserContext from "../../context/userContext";
 import SidePanel from "./RevenueSidePanel";
+import StatBuilder from "../../components/StatBuilder";
+import { AiFillDollarCircle } from "react-icons/ai";
+import { MdCategory } from "react-icons/md";
+import { fetchDashboardData } from "../../services/dashboardService";
 
 function Revenue() {
   const [isSidePanelOpen, setIsSidePanelOpen] = React.useState(false);
   const [categories, setCategories] = React.useState(null);
+  const [totalRevenue, setTotalRevenue] = React.useState(0);
   const { user } = useContext(UserContext);
   const fetchCategories = async () => {
     try {
@@ -18,8 +23,18 @@ function Revenue() {
     }
   };
 
+  const fetchTotalRevenue = async () => {
+    try {
+      const data = await fetchDashboardData(user.$id);
+      setTotalRevenue(data.revenue);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     fetchCategories();
+    fetchTotalRevenue();
   }, []);
 
   return (
@@ -45,6 +60,24 @@ function Revenue() {
             />
           )}
         </AnimatePresence>
+      </div>
+      {/* Stats  Display   */}
+
+      <div className="my-8 flex gap-8 justify-center items-center">
+        {/* Stats components would go here */}
+        <StatBuilder
+          title={"Total Revenue"}
+          value={totalRevenue ? `MK ${totalRevenue}` : "MK 0"}
+          icon={<AiFillDollarCircle />}
+          color={"text-green-500"}
+        />
+        <StatBuilder
+          title={"Total Revenue Categories"}
+          value={categories ? categories.length : 0}
+          icon={<MdCategory />}
+          className={"ml-10"}
+          color={"text-blue-500"}
+        />
       </div>
     </div>
   );
