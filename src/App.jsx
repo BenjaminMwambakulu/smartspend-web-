@@ -8,6 +8,7 @@ import { UserProvider, default as UserContext } from "./context/userContext";
 import ProtectedRoute from "./pages/Auth/ProtectedRoute";
 import Revenue from "./pages/Revenue/Revenue";
 import Expenses from "./pages/Expenses/Expenses";
+import BudgetsPage from "./pages/Budgets/BudgetsPage";
 
 function AppContent() {
   const { user, loading } = useContext(UserContext);
@@ -65,7 +66,7 @@ function AppContent() {
               path="/budget"
               element={
                 <ProtectedRoute>
-                  <div>Budget Page</div>
+                  <BudgetsPage/>
                 </ProtectedRoute>
               }
             />
