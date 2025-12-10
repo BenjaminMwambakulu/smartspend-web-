@@ -2,13 +2,14 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import PrimaryButton from "../../components/PrimaryButton";
 import { motion, AnimatePresence } from "framer-motion";
 import { getIncomeCategories } from "../../services/categoryService";
-import { fetchRevenueData } from "../../services/revenueService";
+import { addRevenue, fetchRevenueData } from "../../services/revenueService";
 import UserContext from "../../context/userContext";
 import SidePanel from "./RevenueSidePanel";
 import StatBuilder from "../../components/StatBuilder";
 import { AiFillDollarCircle } from "react-icons/ai";
 import { MdCategory } from "react-icons/md";
 import { fetchDashboardData } from "../../services/dashboardService";
+import Table from "../../components/Table";
 
 function Revenue() {
   const [isSidePanelOpen, setIsSidePanelOpen] = React.useState(false);
@@ -16,6 +17,7 @@ function Revenue() {
   const [totalRevenue, setTotalRevenue] = React.useState(0);
   const { user } = useContext(UserContext);
   const [revenueData, setRevenueData] = useState([]);
+
   const fetchCategories = async () => {
     try {
       const data = await getIncomeCategories(user.$id);
@@ -28,8 +30,19 @@ function Revenue() {
   const loadRevenueData = async () => {
     try {
       const data = await fetchRevenueData(user.$id);
-      setRevenueData(data.rows);
-      console.log(data.rows);
+      console.log(data.rows); // Log the raw data // Corrected logic: Transform the raw data into an array where keys match table headers
+
+      const transformedData = data.rows.map((row) => ({
+        // Map API fields to your table headers
+        "Source/Category":
+          row.category?.length > 0 ? row.category[0].name : "N/A", // Assuming category is an array of objects
+        Amount: `MK ${row.amount.toFixed(2)}`, // Format amount for display
+        Date: new Date(row.receiptDate).toLocaleDateString(), // Format date
+        Notes: row.notes, // Include a placeholder for the Actions column
+        Actions: "...", // This should be replaced with an Action button/component later
+      }));
+
+      setRevenueData(transformedData);
     } catch (error) {
       console.log(error);
     }
@@ -45,10 +58,12 @@ function Revenue() {
   };
 
   useEffect(() => {
-    fetchCategories();
-    fetchTotalRevenue();
-    loadRevenueData();
-  }, []);
+    if (user?.$id) {
+      fetchCategories();
+      fetchTotalRevenue();
+      loadRevenueData();
+    }
+  }, [user?.$id]); // Dependency on user.$id ensures data loads after user context is ready
 
   return (
     <div className="my-8">
@@ -74,8 +89,7 @@ function Revenue() {
           )}
         </AnimatePresence>
       </div>
-      {/* Stats  Display   */}
-
+      {/* Stats Display */}
       <div className="my-8 flex gap-8 justify-center items-center">
         {/* Stats components would go here */}
         <StatBuilder
@@ -92,6 +106,8 @@ function Revenue() {
           color={"text-blue-500"}
         />
       </div>
+      {/* Table section */}
+      <Table data={revenueData} />
     </div>
   );
 }

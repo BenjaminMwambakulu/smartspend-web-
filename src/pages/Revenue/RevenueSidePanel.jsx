@@ -1,8 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-function SidePanel({ categories, onClose, onSubmit }) {
+import {
+  addIncomeCategory,
+  getIncomeCategories,
+} from "../../services/categoryService";
+import UserContext from "../../context/userContext";
+import { addRevenue } from "../../services/revenueService";
+function SidePanel({ categories, onClose }) {
   const [showNewInput, setShowNewInput] = useState(false);
   const [newCategory, setNewCategory] = useState("");
+  const { user } = useContext(UserContext);
   const [formData, setFormData] = useState({
     amount: "",
     receiptDate:
@@ -10,7 +17,7 @@ function SidePanel({ categories, onClose, onSubmit }) {
       "T" +
       new Date().toTimeString().split(" ")[0].slice(0, 5),
     notes: "",
-    categoryId: "",
+    category: "",
     userId: "",
   });
 
@@ -42,28 +49,33 @@ function SidePanel({ categories, onClose, onSubmit }) {
     return () => {
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [onClose]);
+  }, [onClose, newCategory]);
 
   // Handles select change
   const handleSelect = (e) => {
     if (e.target.value === "new") {
       setShowNewInput(true);
-      setFormData((prev) => ({ ...prev, categoryId: "" }));
+      setFormData((prev) => ({ ...prev, category: "" }));
     } else {
       setShowNewInput(false);
-      setFormData((prev) => ({ ...prev, categoryId: e.target.value }));
+      // Find the selected category to get its ID
+      const selectedCategory = categories.find(
+        cat => cat.category === e.target.value || cat.id === e.target.value || cat.$id === e.target.value
+      );
+      // Store the category ID instead of the value
+      setFormData((prev) => ({ 
+        ...prev, 
+        category: selectedCategory ? (selectedCategory.$id || selectedCategory.id) : e.target.value 
+      }));
     }
   };
 
   // Handles saving new category
-  const handleSaveCategory = () => {
+  const handleSaveCategory = async () => {
     if (!newCategory.trim()) return;
-
-    // Here you will call Appwrite or your backend
-    console.log("Saving new category:", newCategory);
-
-    // After saving, you would typically update the categories list
-    // For now, we'll just close the input
+    try {
+      const res = await addIncomeCategory(user.$id, newCategory);
+    } catch (error) {}
     setNewCategory("");
     setShowNewInput(false);
   };
@@ -75,7 +87,7 @@ function SidePanel({ categories, onClose, onSubmit }) {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validate required fields
@@ -95,16 +107,13 @@ function SidePanel({ categories, onClose, onSubmit }) {
       amount: parseFloat(formData.amount),
       receiptDate: new Date(formData.receiptDate).toISOString(),
       notes: formData.notes || null,
-      categoryId: formData.categoryId || null,
-      userId: formData.userId,
+      category: formData.category || null,
+      userId: user.$id,
     };
 
-    console.log("Submitting data:", submissionData);
+    const data = await addRevenue(submissionData);
 
-    // Call the onSubmit prop if provided
-    if (onSubmit) {
-      onSubmit(submissionData);
-    }
+    console.log("Submitting data:", submissionData);
 
     // Reset form and close panel
     setFormData({
@@ -114,8 +123,8 @@ function SidePanel({ categories, onClose, onSubmit }) {
         "T" +
         new Date().toTimeString().split(" ")[0].slice(0, 5),
       notes: "",
-      categoryId: "",
-      userId: "69381f6c003431d2a626",
+      category: "",
+      userId: user.$id,
     });
     onClose();
   };
@@ -149,7 +158,9 @@ function SidePanel({ categories, onClose, onSubmit }) {
               Amount *
             </label>
             <div className="relative">
-              <span className="absolute left-2 text-sm  top-2 text-gray-500">MK</span>
+              <span className="absolute left-2 text-sm  top-2 text-gray-500">
+                MK
+              </span>
               <input
                 type="number"
                 name="amount"
@@ -186,10 +197,10 @@ function SidePanel({ categories, onClose, onSubmit }) {
               Source / Category
             </label>
             <select
-              name="categoryId"
+              name="category"
               className="w-full border border-gray-300 rounded-lg p-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               onChange={handleSelect}
-              value={formData.categoryId}
+              value={formData.category}
             >
               <option value="">Select a category (optional)</option>
               {Array.isArray(categories) && categories.length > 0 ? (
@@ -197,7 +208,7 @@ function SidePanel({ categories, onClose, onSubmit }) {
                   {categories.map((category) => (
                     <option
                       key={category.$id || category.id}
-                      value={category.categoryId || category.id}
+                      value={category.$id || category.id}
                     >
                       {category.categoryName || category.name}
                     </option>

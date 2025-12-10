@@ -18,3 +18,25 @@ export async function getIncomeCategories(userID) {
     return null;
   }
 }
+
+
+export async function addIncomeCategory(userID, categoryName) { 
+  try {
+    const res = await tableDB.createRow({
+      databaseId: databaseID,
+      tableId: "category",
+      rowId : ID.unique(),
+      data: {
+        userId: userID,
+        categoryId: ID.unique(),
+        categoryName: categoryName,
+        type: "income",
+      },
+    });
+    getIncomeCategories(userID)
+    return res;
+  } catch (error) {
+    console.error("Error adding income category:", error);
+    return null;
+  }
+}
