@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import PrimaryButton from "../../components/PrimaryButton";
 import { motion, AnimatePresence } from "framer-motion";
-import { addBudget, fetchPaginatedBudgetData, deleteBudget, updateBudget } from "../../services/budgetService";
+import { addBudget, fetchPaginatedBudgetData, deleteBudget, updateBudget, fetchBudgets } from "../../services/budgetService";
+import { getExpenseCategories } from "../../services/categoryService";
 import UserContext from "../../context/userContext";
 import BudgetSidePanel from "./BudgetSidePanel";
 import BudgetDoughnutChart from "../../components/BudgetDoughnutChart";
