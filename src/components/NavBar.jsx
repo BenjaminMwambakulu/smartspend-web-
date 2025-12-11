@@ -80,7 +80,7 @@ export default function NavBar() {
                     `https://ui-avatars.com/api/?name=${profile.username}`
                   }
                   alt="user profile"
-                  className="h-10 w-10 rounded-full"
+                  className="h-10 w-10 rounded-full ml-1"
                 />
                 <p className="text-gray-600ml-2 font-bold ">
                   {profile.username}
