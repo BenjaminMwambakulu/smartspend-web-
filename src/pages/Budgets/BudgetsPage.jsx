@@ -307,6 +307,7 @@ function BudgetsPage() {
             <BudgetSidePanel
               categories={categories}
               budgetItem={editingBudget}
+              refreshCategories={fetchCategories}
               onClose={() => {
                 setIsSidePanelOpen(false);
                 setEditingBudget(null);

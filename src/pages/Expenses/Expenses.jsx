@@ -185,6 +185,7 @@ function Expenses() {
             <ExpenseSidePanel
               categories={categories}
               expenseItem={editingExpense} // Pass expense data for editing
+              refreshCategories={fetchCategories} // Pass function to refresh categories
               onClose={() => {
                 setIsSidePanelOpen(false);
                 setEditingExpense(null); // Reset editing state

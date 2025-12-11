@@ -10,7 +10,7 @@ import { fetchBudgets } from "../../services/budgetService";
 import { updateBudget } from "../../services/budgetService";
 
 // Added expenseItem prop for editing
-function ExpenseSidePanel({ categories, onClose, expenseItem }) {
+function ExpenseSidePanel({ categories, onClose, expenseItem, refreshCategories }) {
   const [showNewInput, setShowNewInput] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const [budgets, setBudgets] = useState([]);
@@ -124,7 +124,13 @@ function ExpenseSidePanel({ categories, onClose, expenseItem }) {
     if (!newCategory.trim()) return;
     try {
       const res = await addExpenseCategory(user.$id, newCategory);
-    } catch (error) {}
+      if (res && typeof refreshCategories === 'function') {
+        // Refresh categories after successfully adding a new one
+        refreshCategories();
+      }
+    } catch (error) {
+      console.error("Error adding category:", error);
+    }
     setNewCategory("");
     setShowNewInput(false);
   };

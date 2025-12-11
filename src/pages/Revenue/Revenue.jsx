@@ -185,6 +185,7 @@ function Revenue() {
             <SidePanel
               categories={categories}
               revenueItem={editingRevenue} // Pass revenue data for editing
+              refreshCategories={fetchCategories} // Pass function to refresh categories
               onClose={() => {
                 setIsSidePanelOpen(false);
                 setEditingRevenue(null); // Reset editing state

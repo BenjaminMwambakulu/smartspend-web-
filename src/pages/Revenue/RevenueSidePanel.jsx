@@ -10,7 +10,7 @@ import { fetchBudgets } from "../../services/budgetService";
 import { updateBudget } from "../../services/budgetService";
 
 // Added revenueItem prop for editing
-function SidePanel({ categories, onClose, revenueItem }) {
+function SidePanel({ categories, onClose, revenueItem, refreshCategories }) {
   const [showNewInput, setShowNewInput] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const [budgets, setBudgets] = useState([]);
@@ -124,7 +124,13 @@ function SidePanel({ categories, onClose, revenueItem }) {
     if (!newCategory.trim()) return;
     try {
       const res = await addIncomeCategory(user.$id, newCategory);
-    } catch (error) {}
+      if (res && typeof refreshCategories === 'function') {
+        // Refresh categories after successfully adding a new one
+        refreshCategories();
+      }
+    } catch (error) {
+      console.error("Error adding category:", error);
+    }
     setNewCategory("");
     setShowNewInput(false);
   };

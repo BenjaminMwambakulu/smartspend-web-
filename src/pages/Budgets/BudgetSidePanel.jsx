@@ -10,7 +10,7 @@ import { getExpenseCategories, addExpenseCategory } from "../../services/categor
  * @param {Function} onClose - Function to close the panel
  * @param {Object} budgetItem - Budget item to edit (null for new budget)
  */
-function BudgetSidePanel({ categories, onClose, budgetItem }) {
+function BudgetSidePanel({ categories, onClose, budgetItem, refreshCategories }) {
   const [showNewInput, setShowNewInput] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const { user } = useContext(UserContext);
@@ -102,6 +102,10 @@ function BudgetSidePanel({ categories, onClose, budgetItem }) {
     if (!newCategory.trim()) return;
     try {
       const res = await addExpenseCategory(user.$id, newCategory);
+      if (res && typeof refreshCategories === 'function') {
+        // Refresh categories after successfully adding a new one
+        refreshCategories();
+      }
     } catch (error) {
       console.error("Error adding category:", error);
     }

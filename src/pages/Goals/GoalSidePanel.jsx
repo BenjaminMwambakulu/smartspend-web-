@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { addGoal, updateGoal } from "../../services/goalsService";
 import { formatMoney } from "../../utils/formatMoney";
+import { IoClose } from "react-icons/io5";
 
 /**
  * GoalSidePanel Component
