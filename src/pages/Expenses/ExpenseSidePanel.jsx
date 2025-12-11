@@ -34,6 +34,7 @@ function ExpenseSidePanel({ categories, onClose, expenseItem }) {
           ? expenseItem.category[0].$id || expenseItem.category[0].id || ""
           : "",
         userId: user.$id,
+        isAddedToBudget: expenseItem.isAddedToBudget || false
       };
     } else {
       // Creation mode - initialize with default values
@@ -46,6 +47,7 @@ function ExpenseSidePanel({ categories, onClose, expenseItem }) {
         notes: "",
         category: "",
         userId: user.$id,
+        isAddedToBudget: false
       };
     }
   });
@@ -133,6 +135,17 @@ function ExpenseSidePanel({ categories, onClose, expenseItem }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle checkbox change
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: checked }));
+    
+    // If unchecking the addToBudget, reset selected budget
+    if (name === "isAddedToBudget" && !checked) {
+      setSelectedBudget("");
+    }
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -159,16 +172,17 @@ function ExpenseSidePanel({ categories, onClose, expenseItem }) {
     };
 
     // Check if we're editing or creating new expense
+    let result;
     if (expenseItem) {
       // Update existing expense
-      await updateExpense(expenseItem.$id, submissionData);
+      result = await updateExpense(expenseItem.$id, submissionData);
     } else {
       // Create new expense
-      await addExpense(submissionData);
+      result = await addExpense(submissionData);
     }
     
     // If user wants to add to budget and has selected a budget
-    if (addToBudget && selectedBudget && budgets.length > 0) {
+    if (formData.isAddedToBudget && selectedBudget && budgets.length > 0) {
       const budgetToUpdate = budgets.find(budget => 
         budget.$id === selectedBudget || budget.id === selectedBudget
       );
@@ -202,7 +216,9 @@ function ExpenseSidePanel({ categories, onClose, expenseItem }) {
       notes: "",
       category: "",
       userId: user.$id,
+      isAddedToBudget: false
     });
+    setSelectedBudget("");
     onClose();
   };
 
@@ -270,23 +286,24 @@ function ExpenseSidePanel({ categories, onClose, expenseItem }) {
             />
           </div>
 
-          {/* Add to Budget Toggle */}
-          {budgets.length > 0 && (
-            <div className="mb-4">
-              <div className="flex items-center mb-2">
-                <input
-                  type="checkbox"
-                  id="add-to-budget"
-                  checked={addToBudget}
-                  onChange={(e) => setAddToBudget(e.target.checked)}
-                  className="mr-2 h-4 w-4 text-blue-600 rounded"
-                />
-                <label htmlFor="add-to-budget" className="block text-gray-700 font-medium">
-                  Add to Budget
-                </label>
-              </div>
-              
-              {addToBudget && (
+          {/* Add to Budget Checkbox */}
+          <div className="mb-4">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="add-to-budget"
+                name="isAddedToBudget"
+                checked={formData.isAddedToBudget}
+                onChange={handleCheckboxChange}
+                className="mr-2 h-4 w-4 text-blue-600 rounded"
+              />
+              <label htmlFor="add-to-budget" className="block text-gray-700 font-medium">
+                Add to Budget
+              </label>
+            </div>
+            
+            {formData.isAddedToBudget && budgets.length > 0 && (
+              <div className="mt-2">
                 <select
                   value={selectedBudget}
                   onChange={(e) => setSelectedBudget(e.target.value)}
@@ -302,9 +319,15 @@ function ExpenseSidePanel({ categories, onClose, expenseItem }) {
                     </option>
                   ))}
                 </select>
-              )}
-            </div>
-          )}
+              </div>
+            )}
+            
+            {formData.isAddedToBudget && budgets.length === 0 && (
+              <p className="text-sm text-yellow-600 mt-2">
+                No budgets available. Create a budget first to use this feature.
+              </p>
+            )}
+          </div>
 
           {/* Category Field */}
           <div className="mb-4">

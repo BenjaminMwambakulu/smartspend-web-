@@ -6,11 +6,16 @@ import {
 } from "../../services/categoryService";
 import UserContext from "../../context/userContext";
 import { addRevenue, updateRevenue } from "../../services/revenueService";
+import { fetchBudgets } from "../../services/budgetService";
+import { updateBudget } from "../../services/budgetService";
 
 // Added revenueItem prop for editing
 function SidePanel({ categories, onClose, revenueItem }) {
   const [showNewInput, setShowNewInput] = useState(false);
   const [newCategory, setNewCategory] = useState("");
+  const [budgets, setBudgets] = useState([]);
+  const [addToBudget, setAddToBudget] = useState(false);
+  const [selectedBudget, setSelectedBudget] = useState("");
   const { user } = useContext(UserContext);
   
   // Initialize form data, either empty or with existing revenue data for editing
@@ -29,6 +34,7 @@ function SidePanel({ categories, onClose, revenueItem }) {
           ? revenueItem.category[0].$id || revenueItem.category[0].id || ""
           : "",
         userId: user.$id,
+        isAddedToBudget: revenueItem.isAddedToBudget || false
       };
     } else {
       // Creation mode - initialize with default values
@@ -41,11 +47,30 @@ function SidePanel({ categories, onClose, revenueItem }) {
         notes: "",
         category: "",
         userId: user.$id,
+        isAddedToBudget: false
       };
     }
   });
 
   const panelRef = useRef(null);
+
+  // Fetch budgets for the user
+  useEffect(() => {
+    const fetchUserBudgets = async () => {
+      try {
+        const budgetData = await fetchBudgets(user.$id);
+        if (budgetData && budgetData.rows) {
+          setBudgets(budgetData.rows);
+        }
+      } catch (error) {
+        console.error("Error fetching budgets:", error);
+      }
+    };
+
+    if (user && user.$id) {
+      fetchUserBudgets();
+    }
+  }, [user]);
 
   // Close panel when clicking outside
   useEffect(() => {
@@ -110,6 +135,17 @@ function SidePanel({ categories, onClose, revenueItem }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle checkbox change
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: checked }));
+    
+    // If unchecking the addToBudget, reset selected budget
+    if (name === "isAddedToBudget" && !checked) {
+      setSelectedBudget("");
+    }
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -136,12 +172,36 @@ function SidePanel({ categories, onClose, revenueItem }) {
     };
 
     // Check if we're editing or creating new revenue
+    let result;
     if (revenueItem) {
       // Update existing revenue
-      await updateRevenue(revenueItem.$id, submissionData);
+      result = await updateRevenue(revenueItem.$id, submissionData);
     } else {
       // Create new revenue
-      await addRevenue(submissionData);
+      result = await addRevenue(submissionData);
+    }
+    
+    // If user wants to add to budget and has selected a budget
+    if (formData.isAddedToBudget && selectedBudget && budgets.length > 0) {
+      const budgetToUpdate = budgets.find(budget => 
+        budget.$id === selectedBudget || budget.id === selectedBudget
+      );
+      
+      if (budgetToUpdate) {
+        // For revenue, we subtract from spentAmount (as it's income, not expense)
+        const currentSpent = budgetToUpdate.spentAmount || 0;
+        const newSpent = Math.max(0, currentSpent - parseFloat(formData.amount)); // Ensure it doesn't go negative
+        
+        // Update the budget with new spent amount
+        try {
+          await updateBudget(selectedBudget, {
+            ...budgetToUpdate,
+            spentAmount: newSpent
+          });
+        } catch (error) {
+          console.error("Error updating budget:", error);
+        }
+      }
     }
 
     console.log("Submitting data:", submissionData);
@@ -156,7 +216,9 @@ function SidePanel({ categories, onClose, revenueItem }) {
       notes: "",
       category: "",
       userId: user.$id,
+      isAddedToBudget: false
     });
+    setSelectedBudget("");
     onClose();
   };
 
@@ -222,6 +284,49 @@ function SidePanel({ categories, onClose, revenueItem }) {
               value={formData.receiptDate}
               onChange={handleInputChange}
             />
+          </div>
+
+          {/* Add to Budget Checkbox */}
+          <div className="mb-4">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="add-to-budget"
+                name="isAddedToBudget"
+                checked={formData.isAddedToBudget}
+                onChange={handleCheckboxChange}
+                className="mr-2 h-4 w-4 text-blue-600 rounded"
+              />
+              <label htmlFor="add-to-budget" className="block text-gray-700 font-medium">
+                Add to Budget
+              </label>
+            </div>
+            
+            {formData.isAddedToBudget && budgets.length > 0 && (
+              <div className="mt-2">
+                <select
+                  value={selectedBudget}
+                  onChange={(e) => setSelectedBudget(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg p-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Select a budget</option>
+                  {budgets.map((budget) => (
+                    <option 
+                      key={budget.$id || budget.id} 
+                      value={budget.$id || budget.id}
+                    >
+                      {budget.name} (Current spent: {budget.spentAmount || 0})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            
+            {formData.isAddedToBudget && budgets.length === 0 && (
+              <p className="text-sm text-yellow-600 mt-2">
+                No budgets available. Create a budget first to use this feature.
+              </p>
+            )}
           </div>
 
           {/* Category Field */}
