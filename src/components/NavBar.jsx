@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { BiSearch } from "react-icons/bi";
 import { HiWallet } from "react-icons/hi2";
 import { Link } from "react-router-dom";
@@ -12,6 +12,25 @@ export default function NavBar() {
     { name: "Goals", path: "/goals" },
   ];
   const Location = window.location.pathname;
+  const [profile, setProfile] = React.useState(null);
+  const profileData = async () => {
+    try {
+      setLoading(true);
+      const res = await tableDB.listRows({
+        databaseId: databaseID,
+        tableId: "profiles",
+        queries: [Query.equal("userId", user.$id)],
+      });
+      setProfile(res.rows[0]);
+    } catch (error) {
+      console.error("Error fetching profile data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    profileData();
+  }, []);
 
   return (
     <nav className=" lg:max-w-7xl mx-auto py-6 flex justify-between items-center">
@@ -33,6 +52,25 @@ export default function NavBar() {
               {link.name}
             </Link>
           ))}
+          <div className="flex items-center">
+            {profile ? (
+              <>
+                <img
+                  src={
+                    profile.profilePicture ??
+                    `https://ui-avatars.com/api/?name=${profile.username}`
+                  }
+                  alt="user profile"
+                  className="h-10 w-10 rounded-full"
+                />
+                <p className="text-gray-600ml-2 font-bold ">
+                  {profile.username}
+                </p>
+              </>
+            ) : (
+              <p className="text-gray-600 font-bold">User</p>
+            )}
+          </div>
         </div>
       </div>
     </nav>
