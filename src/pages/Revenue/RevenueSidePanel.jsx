@@ -163,7 +163,6 @@ function SidePanel({ categories, onClose, revenueItem }) {
 
     // Create the data object to submit
     const submissionData = {
-      ...formData,
       amount: parseFloat(formData.amount),
       receiptDate: new Date(formData.receiptDate).toISOString(),
       notes: formData.notes || null,
@@ -216,7 +215,6 @@ function SidePanel({ categories, onClose, revenueItem }) {
       notes: "",
       category: "",
       userId: user.$id,
-      isAddedToBudget: false
     });
     setSelectedBudget("");
     onClose();

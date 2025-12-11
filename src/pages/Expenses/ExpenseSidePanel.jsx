@@ -163,7 +163,6 @@ function ExpenseSidePanel({ categories, onClose, expenseItem }) {
 
     // Create the data object to submit
     const submissionData = {
-      ...formData,
       amount: parseFloat(formData.amount),
       transactionDate: new Date(formData.transactionDate).toISOString(),
       notes: formData.notes || null,
