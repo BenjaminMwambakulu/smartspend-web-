@@ -25,6 +25,29 @@ export async function fetchBudgets(userID) {
   }
 }
 
+// New function for fetching paginated budget data
+export async function fetchPaginatedBudgetData(userID, limit = 10, offset = 0) {
+  try {
+    // Fetch budget data with pagination
+    const budgetData = await tableDB.listRows({
+      databaseId: databaseID,
+      tableId: "budget",
+      queries: [
+        Query.equal("userId", userID),
+        Query.limit(limit),
+        Query.offset(offset),
+        Query.orderDesc("$createdAt"), // Order by creation date, newest first
+        Query.select(["*", "category.categoryName"]),
+      ],
+    });
+    
+    return budgetData;
+  } catch (error) {
+    console.error("Error fetching paginated budget data:", error);
+    throw error;
+  }
+}
+
 /**
  * Add a new budget
  * @param {Object} budgetData - The budget data to add

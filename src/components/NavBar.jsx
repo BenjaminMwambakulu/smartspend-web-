@@ -1,7 +1,11 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { BiSearch } from "react-icons/bi";
 import { HiWallet } from "react-icons/hi2";
 import { Link } from "react-router-dom";
+import UserContext from "../context/userContext.jsx";
+import { tableDB } from "../config/appwrite.js";
+import { databaseID } from "../config/db.js";
+import { Query } from "appwrite";
 
 export default function NavBar() {
   const navLinks = [
@@ -12,8 +16,13 @@ export default function NavBar() {
     { name: "Goals", path: "/goals" },
   ];
   const Location = window.location.pathname;
-  const [profile, setProfile] = React.useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { user } = useContext(UserContext);
+
   const profileData = async () => {
+    if (!user) return;
+    
     try {
       setLoading(true);
       const res = await tableDB.listRows({
@@ -28,9 +37,10 @@ export default function NavBar() {
       setLoading(false);
     }
   };
+  
   useEffect(() => {
     profileData();
-  }, []);
+  }, [user]);
 
   return (
     <nav className=" lg:max-w-7xl mx-auto py-6 flex justify-between items-center">
