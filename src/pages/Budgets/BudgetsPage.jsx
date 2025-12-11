@@ -1,19 +1,16 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
-import UserContext from "../../context/userContext";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import PrimaryButton from "../../components/PrimaryButton";
-import { AiFillEdit, AiFillDelete } from "react-icons/ai";
-import { FaPlus } from "react-icons/fa";
-import Table from "../../components/Table";
-import BudgetDoughnutChart from "../../components/BudgetDoughnutChart";
+import { motion, AnimatePresence } from "framer-motion";
+import { addBudget, fetchPaginatedBudgetData, deleteBudget, updateBudget } from "../../services/budgetService";
+import UserContext from "../../context/userContext";
 import BudgetSidePanel from "./BudgetSidePanel";
-import {
-  fetchBudgets,
-  deleteBudget,
-  updateBudget,
-} from "../../services/budgetService";
-import { getExpenseCategories } from "../../services/categoryService";
+import BudgetDoughnutChart from "../../components/BudgetDoughnutChart";
+import StatBuilder from "../../components/StatBuilder";
+import { AiFillDollarCircle, AiFillEdit, AiFillDelete } from "react-icons/ai";
+import Table from "../../components/Table";
+import Pagination from "../../components/Pagination";
+import { toast } from "sonner";
+import { formatMoney } from "../../utils/formatMoney";
 
 /**
  * Main Budgets Page Component
@@ -147,10 +144,7 @@ function BudgetsPage() {
 
     return budgetsData.map((budget) => ({
       Name: budget.name,
-      Amount: `MK ${parseFloat(budget.amount || 0).toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}`,
+      Amount: `MK ${formatMoney(budget.amount || 0)}`,
       Notes: budget.notes || "N/A",
       "Start Date": budget.startDate
         ? new Date(budget.startDate).toLocaleDateString()
@@ -162,13 +156,7 @@ function BudgetsPage() {
         budget.category && budget.category.length > 0
           ? budget.category.map((cat) => cat.categoryName).join(", ")
           : "N/A",
-      "Spent Amount": `MK ${parseFloat(budget.spentAmount || 0).toLocaleString(
-        undefined,
-        {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }
-      )}`,
+      "Spent Amount": `MK ${formatMoney(budget.spentAmount || 0)}`,
       Actions: (
         <div className="flex space-x-2">
           <button

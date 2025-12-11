@@ -7,19 +7,7 @@ import { fetchBudgets } from "../services/budgetService";
 import UserContext from "../context/userContext";
 import BudgetDoughnutChart from "./BudgetDoughnutChart";
 import BarGraph from "../pages/Home/barGraph";
-
-// Proper money formatting
-const formatMoney = (num) => {
-  // Handle case where num is undefined or null
-  if (num === undefined || num === null) {
-    num = 0;
-  }
-  
-  return num.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-};
+import { formatMoney } from "../utils/formatMoney";
 
 export default function Overview() {
   const { user } = useContext(UserContext);
@@ -114,6 +102,7 @@ export default function Overview() {
             icon={<TbShoppingCartDollar />}
             color="text-green-500"
           />
+
         </div>
 
         {/* Monthly Bar Graph */}

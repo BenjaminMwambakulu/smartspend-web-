@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
+import { formatMoney } from "../utils/formatMoney";
 
 /**
  * Doughnut chart component for visualizing a single budget
@@ -55,7 +56,8 @@ const BudgetDoughnutChart = ({ budget }) => {
                 // Calculate actual values for tooltip
                 const total = budget.amount;
                 const value = context.dataIndex === 0 ? spent : remaining;
-                return `${context.label}: MK ${parseFloat(value).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+                return `${context.label}: MK ${formatMoney(value)}`;
+
               }
             }
           }
@@ -72,7 +74,7 @@ const BudgetDoughnutChart = ({ budget }) => {
     <div className="w-full max-w-[250px] mx-auto">
       <canvas ref={canvasRef}></canvas>
       <div className="text-center mt-2">
-        <p className="text-lg font-bold text-gray-800">MK {parseFloat(budget.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+        <p className="text-lg font-bold text-gray-800">MK {formatMoney(budget.amount)}</p>
         <p className="text-sm text-gray-600">
           {budget.category && budget.category.length > 0 
             ? budget.category.map(cat => cat.categoryName).join(", ") 

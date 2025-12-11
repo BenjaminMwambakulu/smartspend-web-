@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import UserContext from "../context/userContext";
 import { getGoals } from "../services/goalsService";
 import { GiStairsGoal } from "react-icons/gi";
 import { AiFillClockCircle } from "react-icons/ai";
 import { IoBatteryFullOutline } from "react-icons/io5";
 import { FaEquals } from "react-icons/fa";
+import { formatMoney } from "../utils/formatMoney";
 
 export default function Goals() {
   const [goals, setGoals] = React.useState(null);
@@ -97,9 +98,7 @@ export default function Goals() {
                 goals ? (
                   <>
                     <sup>MK</sup>
-                    {goals
-                      .reduce((sum, g) => sum + (g.amountContributed || 0), 0)
-                      .toLocaleString()}
+                    {formatMoney(goals.reduce((sum, g) => sum + (g.amountContributed || 0), 0))}
                   </>
                 ) : (
                   <>

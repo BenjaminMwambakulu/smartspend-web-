@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatMoney } from "../../utils/formatMoney";
 
 /**
  * QuickActionContribution Component
@@ -42,13 +43,13 @@ const QuickActionContribution = ({ goal, onClose, onSubmit }) => {
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Current Contribution:</span>
               <span className="font-medium">
-                MK{parseFloat(goal.amountContributed || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                MK{formatMoney(goal.amountContributed || 0)}
               </span>
             </div>
             <div className="flex justify-between text-sm mt-1">
               <span className="text-gray-600">Target Amount:</span>
               <span className="font-medium">
-                MK {parseFloat(goal.targetAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                MK {formatMoney(goal.targetAmount || 0)}
               </span>
             </div>
           </div>

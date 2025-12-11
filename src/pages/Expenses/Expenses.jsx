@@ -12,6 +12,7 @@ import { fetchDashboardData } from "../../services/dashboardService";
 import Table from "../../components/Table";
 import Pagination from "../../components/Pagination";
 import { toast } from "sonner";
+import { formatMoney } from "../../utils/formatMoney";
 
 function Expenses() {
   const [isSidePanelOpen, setIsSidePanelOpen] = React.useState(false);
@@ -69,7 +70,7 @@ function Expenses() {
           // Map API fields to your table headers
           "Category":
             row.category && row.category.length > 0 ? row.category[0].categoryName : "N/A",
-          Amount: `MK ${parseFloat(row.amount).toFixed(2)}`,
+          Amount: `MK ${formatMoney(row.amount)}`,
           Date: new Date(row.transactionDate).toLocaleDateString(),
           Notes: row.notes || "",
           Actions: (
@@ -198,7 +199,7 @@ function Expenses() {
         {/* Stats components would go here */}
         <StatBuilder
           title={"Total Expenses"}
-          value={totalExpenses ? `MK ${totalExpenses}` : "MK 0"}
+          value={totalExpenses ? `MK ${formatMoney(totalExpenses)}` : "MK 0.00"}
           icon={<AiFillDollarCircle />}
           color={"text-red-500"}
         />

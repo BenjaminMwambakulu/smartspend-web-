@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
+import { formatMoney } from "../../utils/formatMoney";
 
 export default function BudgetPie({ expenses = 0, budget = 0 }) {
   const canvasRef = useRef(null);
@@ -29,7 +30,7 @@ export default function BudgetPie({ expenses = 0, budget = 0 }) {
         ctx.font = "bold 26px sans-serif";
         ctx.fillStyle = "#000";
         ctx.fillText(
-          `MK ${expenses.toLocaleString()}`,
+          `MK ${formatMoney(expenses)}`,
           width / 2,
           height / 2 - 10
         );
@@ -77,11 +78,11 @@ export default function BudgetPie({ expenses = 0, budget = 0 }) {
 
       <div className="flex w-full justify-between px-6 mt-2">
         <div className="text-center">
-          <p className="font-bold">MK {budget.toLocaleString()}</p>
+          <p className="font-bold">MK {formatMoney(budget)}</p>
           <p className="text-gray-500 text-sm">Monthly Limit</p>
         </div>
         <div className="text-center">
-          <p className="font-bold">MK {remaining.toLocaleString()}</p>
+          <p className="font-bold">MK {formatMoney(remaining)}</p>
           <p className="text-gray-500 text-sm">Remaining</p>
         </div>
       </div>
