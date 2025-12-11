@@ -13,6 +13,7 @@ const Revenue = lazy(() => import("./pages/Revenue/Revenue"));
 const Expenses = lazy(() => import("./pages/Expenses/Expenses"));
 const BudgetsPage = lazy(() => import("./pages/Budgets/BudgetsPage"));
 const GoalsPage = lazy(() => import("./pages/Goals/GoalsPage"));
+const ProfilePage = lazy(() => import("./pages/Profile/ProfilePage"));
 
 // Custom Loader Component
 const AppLoader = () => {
@@ -71,7 +72,7 @@ function AppContent() {
                 path="/profile"
                 element={
                   <ProtectedRoute>
-                    <div>Profile Page</div>
+                    <ProfilePage />
                   </ProtectedRoute>
                 }
               />
