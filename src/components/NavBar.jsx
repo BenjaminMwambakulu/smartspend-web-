@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { BiSearch } from "react-icons/bi";
+import { BiLogOut, BiSearch } from "react-icons/bi";
 import { HiWallet } from "react-icons/hi2";
 import { Link } from "react-router-dom";
 import UserContext from "../context/userContext.jsx";
@@ -17,12 +17,12 @@ export default function NavBar() {
   ];
   const Location = window.location.pathname;
   const [profile, setProfile] = useState(null);
+  const { user, logout } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
-  const { user } = useContext(UserContext);
 
   const profileData = async () => {
     if (!user) return;
-    
+
     try {
       setLoading(true);
       const res = await tableDB.listRows({
@@ -37,7 +37,16 @@ export default function NavBar() {
       setLoading(false);
     }
   };
-  
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   useEffect(() => {
     profileData();
   }, [user]);
@@ -50,7 +59,7 @@ export default function NavBar() {
       </h1>
       <div className="flex justify-between items-center gap-x-6">
         {/* Navigation Links */}
-        <div className="hidden md:flex space-x-6">
+        <div className="hidden md:flex space-x-6 items-center">
           {navLinks.map((link) => (
             <Link
               key={link.name}
@@ -62,7 +71,7 @@ export default function NavBar() {
               {link.name}
             </Link>
           ))}
-          <div className="flex items-center">
+          <div className="flex items-center bg-white rounded-md p-1">
             {profile ? (
               <>
                 <img
@@ -76,6 +85,9 @@ export default function NavBar() {
                 <p className="text-gray-600ml-2 font-bold ">
                   {profile.username}
                 </p>
+                <button className="ml-2" title="Logout" onClick={handleLogout}>
+                  <BiLogOut size={25} className="text-red-500" />
+                </button>
               </>
             ) : (
               <p className="text-gray-600 font-bold">User</p>

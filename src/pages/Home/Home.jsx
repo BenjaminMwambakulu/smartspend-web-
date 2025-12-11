@@ -29,14 +29,7 @@ function Home() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate("/");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
+
 
   useEffect(() => {
     profileData();
