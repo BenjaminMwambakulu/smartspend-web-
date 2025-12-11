@@ -20,18 +20,6 @@ export default function NavBar() {
         SmartSpend
       </h1>
       <div className="flex justify-between items-center gap-x-6">
-        {/* Search Bar */}
-        <label className="flex bg-white items-center group gap-2 border border-gray-300 rounded-lg px-4 py-2 focus-within:ring-2 focus-within:ring-blue-500">
-          <BiSearch
-            className="text-gray-500 group-focus-within:text-secondary"
-            size={20}
-          />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-full hidden lg:flex bg-transparent outline-none"
-          />
-        </label>
         {/* Navigation Links */}
         <div className="hidden md:flex space-x-6">
           {navLinks.map((link) => (

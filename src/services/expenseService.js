@@ -58,6 +58,22 @@ export async function addExpense(expenseData = {}) {
   }
 }
 
+export async function updateExpense(expenseId, expenseData = {}) {
+  if (!expenseData) return new Error("Invalid expense data");
+  try {
+    const res = await tableDB.updateRow({
+      databaseId: databaseID,
+      tableId: "expenses",
+      rowId: expenseId,
+      data: expenseData,
+    });
+    return res;
+  } catch (error) {
+    console.error("Error updating expense:", error);
+    return null;
+  }
+}
+
 export async function deleteExpense(expenseId) {
   try {
     const res = await tableDB.deleteRow({

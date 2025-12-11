@@ -83,7 +83,7 @@ export async function addExpenseCategory(userID, categoryName) {
       tableId: "category",
       rowId: ID.unique(),
       data: {
-        userID: userID,
+        userId: userID,
         categoryId: ID.unique(),
         categoryName: categoryName,
         type: "expense",

@@ -5,7 +5,7 @@ import {
   getIncomeCategories,
 } from "../../services/categoryService";
 import UserContext from "../../context/userContext";
-import { addRevenue } from "../../services/revenueService";
+import { addRevenue, updateRevenue } from "../../services/revenueService";
 
 // Added revenueItem prop for editing
 function SidePanel({ categories, onClose, revenueItem }) {
@@ -135,7 +135,14 @@ function SidePanel({ categories, onClose, revenueItem }) {
       userId: user.$id,
     };
 
-    const data = await addRevenue(submissionData);
+    // Check if we're editing or creating new revenue
+    if (revenueItem) {
+      // Update existing revenue
+      await updateRevenue(revenueItem.$id, submissionData);
+    } else {
+      // Create new revenue
+      await addRevenue(submissionData);
+    }
 
     console.log("Submitting data:", submissionData);
 

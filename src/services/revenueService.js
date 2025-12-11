@@ -58,6 +58,22 @@ export async function addRevenue(revenueData = {}) {
   }
 }
 
+export async function updateRevenue(incomeId, revenueData = {}) {
+  if (!revenueData) return new Error("Invalid revenue data");
+  try {
+    const res = await tableDB.updateRow({
+      databaseId: databaseID,
+      tableId: "income",
+      rowId: incomeId,
+      data: revenueData,
+    });
+    return res;
+  } catch (error) {
+    console.error("Error updating revenue:", error);
+    return null;
+  }
+}
+
 export async function deleteRevenue(incomeId) {
   try {
     const res = await tableDB.deleteRow({

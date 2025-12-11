@@ -24,7 +24,7 @@ const QuickActionContribution = ({ goal, onClose, onSubmit }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
         onClick={onClose}
       >
         <motion.div
@@ -42,13 +42,13 @@ const QuickActionContribution = ({ goal, onClose, onSubmit }) => {
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Current Contribution:</span>
               <span className="font-medium">
-                ${parseFloat(goal.amountContributed || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                MK{parseFloat(goal.amountContributed || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
             <div className="flex justify-between text-sm mt-1">
               <span className="text-gray-600">Target Amount:</span>
               <span className="font-medium">
-                ${parseFloat(goal.targetAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                MK {parseFloat(goal.targetAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
           </div>

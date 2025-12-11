@@ -398,9 +398,7 @@ function GoalsPage() {
             <p className="text-gray-600 mb-6">
               Start by creating your first financial goal
             </p>
-            <PrimaryButton onClick={() => setIsSidePanelOpen(true)}>
-              Create Your First Goal
-            </PrimaryButton>
+            <PrimaryButton text={"Create Your First Goal"}  onClick={() => setIsSidePanelOpen(true)}/>
           </div>
         )}
       </div>

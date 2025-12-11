@@ -5,7 +5,7 @@ import {
   getExpenseCategories,
 } from "../../services/categoryService";
 import UserContext from "../../context/userContext";
-import { addExpense } from "../../services/expenseService";
+import { addExpense, updateExpense } from "../../services/expenseService";
 import { fetchBudgets } from "../../services/budgetService";
 import { updateBudget } from "../../services/budgetService";
 
@@ -158,7 +158,14 @@ function ExpenseSidePanel({ categories, onClose, expenseItem }) {
       userId: user.$id,
     };
 
-    const data = await addExpense(submissionData);
+    // Check if we're editing or creating new expense
+    if (expenseItem) {
+      // Update existing expense
+      await updateExpense(expenseItem.$id, submissionData);
+    } else {
+      // Create new expense
+      await addExpense(submissionData);
+    }
     
     // If user wants to add to budget and has selected a budget
     if (addToBudget && selectedBudget && budgets.length > 0) {

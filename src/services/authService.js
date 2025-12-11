@@ -9,7 +9,7 @@ export async function registerWithEmail(email, password, name = "user") {
       userId: ID.unique(),
       email: cleanEmail,
       password: password,
-      name: name
+      name: name,
     });
     console.log(user);
 
@@ -28,7 +28,7 @@ export async function registerWithEmail(email, password, name = "user") {
         userId: user.$id,
         username: name,
         email: cleanEmail,
-        profilePicture: `https://avatar.iran.liara.run/username?username=${name}`,
+        profilePicture: `https://ui-avatars.com/api/?name=${name}`,
       },
       permissions: [
         Permission.read(Role.user(user.$id)),

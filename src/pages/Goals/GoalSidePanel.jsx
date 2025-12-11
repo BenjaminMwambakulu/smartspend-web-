@@ -12,7 +12,6 @@ import { IoClose } from "react-icons/io5";
  */
 const GoalSidePanel = ({ isOpen, onClose, onSubmit, goalData }) => {
   const [formData, setFormData] = useState({
-    goalId: "",
     goalName: "",
     targetAmount: "",
     deadline: "",
@@ -25,7 +24,6 @@ const GoalSidePanel = ({ isOpen, onClose, onSubmit, goalData }) => {
   useEffect(() => {
     if (goalData) {
       setFormData({
-        goalId: goalData.goalId || "",
         goalName: goalData.goalName || "",
         targetAmount: goalData.targetAmount || "",
         deadline: goalData.deadline ? goalData.deadline.split('T')[0] : "",
@@ -36,7 +34,6 @@ const GoalSidePanel = ({ isOpen, onClose, onSubmit, goalData }) => {
     } else {
       // Reset form for new goal
       setFormData({
-        goalId: "",
         goalName: "",
         targetAmount: "",
         deadline: "",
@@ -83,7 +80,7 @@ const GoalSidePanel = ({ isOpen, onClose, onSubmit, goalData }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            className="fixed inset-0 bg-black/50 z-40"
             onClick={onClose}
           />
           <motion.div
@@ -107,21 +104,6 @@ const GoalSidePanel = ({ isOpen, onClose, onSubmit, goalData }) => {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="goalId" className="block text-sm font-medium text-gray-700 mb-1">
-                    Goal ID *
-                  </label>
-                  <input
-                    type="number"
-                    id="goalId"
-                    name="goalId"
-                    value={formData.goalId}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
                 <div>
                   <label htmlFor="goalName" className="block text-sm font-medium text-gray-700 mb-1">
                     Goal Name *
