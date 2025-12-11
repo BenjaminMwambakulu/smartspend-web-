@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import UserContext from "../../context/userContext";
@@ -6,9 +6,13 @@ import PrimaryButton from "../../components/PrimaryButton";
 import { AiFillEdit, AiFillDelete } from "react-icons/ai";
 import { FaPlus } from "react-icons/fa";
 import Table from "../../components/Table";
-import BudgetSlider from "../../components/BudgetSlider";
+import BudgetDoughnutChart from "../../components/BudgetDoughnutChart";
 import BudgetSidePanel from "./BudgetSidePanel";
-import { fetchBudgets, deleteBudget, updateBudget } from "../../services/budgetService";
+import {
+  fetchBudgets,
+  deleteBudget,
+  updateBudget,
+} from "../../services/budgetService";
 import { getExpenseCategories } from "../../services/categoryService";
 
 /**
@@ -23,6 +27,10 @@ function BudgetsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { user } = useContext(UserContext);
+
+  // Slider state
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const sliderRef = useRef(null);
 
   /**
    * Fetch all categories for the budget form
@@ -50,7 +58,6 @@ function BudgetsPage() {
 
     try {
       const data = await fetchBudgets(user.$id);
-
       if (data && data.rows) {
         setBudgets(data.rows);
       } else {
@@ -80,13 +87,15 @@ function BudgetsPage() {
    * @param {string} budgetId - The ID of the budget to delete
    */
   const handleDelete = async (budgetId) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this budget?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this budget?"
+    );
     if (confirmDelete) {
       try {
         const result = await deleteBudget(budgetId);
         if (result) {
           toast.success("Budget deleted successfully");
-          reloadData(); // Refresh the data
+          loadBudgets(); // Refresh the data
         } else {
           toast.error("Failed to delete budget");
         }
@@ -98,115 +107,213 @@ function BudgetsPage() {
   };
 
   /**
-   * Handle quick add expense action - opens a prompt to quickly add an expense to a budget
-   * @param {Object} budget - The budget to add an expense to
-   */
-  const handleQuickAddExpense = async (budget) => {
-    const amount = prompt(`Enter expense amount for budget "${budget.name}":`);
-    
-    if (amount === null) {
-      // User cancelled the prompt
-      return;
-    }
-    
-    const parsedAmount = parseFloat(amount);
-    
-    if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      toast.error("Please enter a valid positive number");
-      return;
-    }
-    
-    try {
-      // Calculate new spent amount
-      const currentSpent = budget.spentAmount || 0;
-      const newSpent = currentSpent + parsedAmount;
-      
-      // Update the budget with new spent amount
-      const result = await updateBudget(budget.$id, {
-        ...budget,
-        spentAmount: newSpent
-      });
-      
-      if (result) {
-        toast.success(`Added MK ${parsedAmount.toFixed(2)} to budget "${budget.name}"`);
-        reloadData(); // Refresh the data
-      } else {
-        toast.error("Failed to update budget");
-      }
-    } catch (error) {
-      console.error("Error updating budget:", error);
-      toast.error("Error updating budget");
-    }
-  };
-
-  /**
-   * Reload all data
+   * Reload data when needed
    */
   const reloadData = () => {
     loadBudgets();
     fetchCategories();
   };
 
-  // Initial data loading
+  // Load budgets and categories on component mount
   useEffect(() => {
-    if (user?.$id) {
-      fetchCategories();
-      loadBudgets();
-    }
-  }, [user?.$id]);
+    loadBudgets();
+    fetchCategories();
+  }, [user]);
 
-  // Prepare data for table display
-  const budgetTableData = budgets.map((budget) => ({
-    "Name": budget.name,
-    "Amount": `MK ${parseFloat(budget.amount).toLocaleString()}`,
-    "Spent": `MK ${parseFloat(budget.spentAmount || 0).toLocaleString()}`,
-    "Category": budget.category && budget.category.length > 0 
-      ? budget.category.map(cat => cat.categoryName).join(", ") 
-      : "No category",
-    "Start Date": new Date(budget.startDate).toLocaleDateString(),
-    "End Date": budget.endDate ? new Date(budget.endDate).toLocaleDateString() : "Ongoing",
-    "Notes": budget.notes || "",
-    "Actions": (
-      <div className="flex space-x-2">
-        <button 
-          onClick={() => handleQuickAddExpense(budget)}
-          className="p-2 rounded-md bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
-          title="Quick Add Expense"
-        >
-          <FaPlus />
-        </button>
-        <button 
-          onClick={() => handleEdit(budget)}
-          className="p-2 rounded-md bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
-        >
-          <AiFillEdit />
-        </button>
-        <button 
-          onClick={() => handleDelete(budget.$id)}
-          className="p-2 rounded-md bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
-        >
-          <AiFillDelete />
-        </button>
+  // Auto-slide carousel
+  useEffect(() => {
+    if (budgets.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % budgets.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [budgets.length]);
+
+  // Scroll to current slide
+  useEffect(() => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollTo({
+        left: currentSlide * 280, // Width of each slide (256px + margins)
+        behavior: "smooth",
+      });
+    }
+  }, [currentSlide]);
+
+  // Format budgets for table display
+  const formatBudgetsForTable = (budgetsData) => {
+    if (!budgetsData || budgetsData.length === 0) return [];
+
+    return budgetsData.map((budget) => ({
+      Name: budget.name,
+      Amount: `MK ${parseFloat(budget.amount || 0).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`,
+      Notes: budget.notes || "N/A",
+      "Start Date": budget.startDate
+        ? new Date(budget.startDate).toLocaleDateString()
+        : "N/A",
+      "End Date": budget.endDate
+        ? new Date(budget.endDate).toLocaleDateString()
+        : "N/A",
+      Category:
+        budget.category && budget.category.length > 0
+          ? budget.category.map((cat) => cat.categoryName).join(", ")
+          : "N/A",
+      "Spent Amount": `MK ${parseFloat(budget.spentAmount || 0).toLocaleString(
+        undefined,
+        {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }
+      )}`,
+      Actions: (
+        <div className="flex space-x-2">
+          <button
+            onClick={() => handleEdit(budget)}
+            className="p-2 rounded-md bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+          >
+            <AiFillEdit />
+          </button>
+          <button
+            onClick={() => handleDelete(budget.$id)}
+            className="p-2 rounded-md bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+          >
+            <AiFillDelete />
+          </button>
+        </div>
+      ),
+    }));
+  };
+
+  const formattedBudgets = formatBudgetsForTable(budgets);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
-    ),
-  }));
+    );
+  }
 
   return (
-    <div className="my-8">
-      <div className="flex justify-between items-center">
-        <h1 className="flex flex-col">
-          <span className="text-2xl text-gray-800">Budgets</span>
-          <span className="text-sm text-gray-600">Manage your budgets</span>
-        </h1>
-        <PrimaryButton
-          text={"New Budget"}
-          onClick={() => {
-            setEditingBudget(null);
-            setIsSidePanelOpen(true);
-          }}
-        />
-        
-        {/* Side Panel for Adding/Editing Budgets */}
+    <div className="min-h-screen py-8">
+      <div className="">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Budgets</h1>
+            <p className="text-gray-600 mt-2">
+              Manage your spending limits and track expenses
+            </p>
+          </div>
+          <PrimaryButton
+            text={"+ New Budget"}
+            onClick={() => setIsSidePanelOpen(true)}
+          />
+        </div>
+
+        {/* Budget Chart Carousel */}
+        {budgets && budgets.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Budget Overview
+            </h2>
+            <div
+              ref={sliderRef}
+              className="w-full overflow-x-auto pb-4 scrollbar-hide"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              <div className="flex space-x-6 min-w-max">
+                {budgets.map((budget, index) => (
+                  <div
+                    key={budget.$id}
+                    className="shrink-0 w-64 bg-white rounded-lg shadow p-4"
+                  >
+                    <BudgetDoughnutChart budget={budget} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {budgets.length > 1 && (
+              <div className="flex justify-center mt-4 space-x-2">
+                {budgets.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`w-3 h-3 rounded-full ${
+                      index === currentSlide ? "bg-blue-600" : "bg-gray-300"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="text-gray-500 text-sm font-medium">
+              Total Budgets
+            </div>
+            <div className="text-2xl font-bold text-gray-900 mt-2">
+              {budgets ? budgets.length : 0}
+            </div>
+          </div>
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="text-gray-500 text-sm font-medium">
+              Within Budget
+            </div>
+            <div className="text-2xl font-bold text-green-600 mt-2">
+              {budgets
+                ? budgets.filter((b) => {
+                    const spent = b.spentAmount || 0;
+                    const target = b.targetAmount || 1;
+                    return spent <= target;
+                  }).length
+                : 0}
+            </div>
+          </div>
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="text-gray-500 text-sm font-medium">Over Budget</div>
+            <div className="text-2xl font-bold text-red-600 mt-2">
+              {budgets
+                ? budgets.filter((b) => {
+                    const spent = b.spentAmount || 0;
+                    const target = b.targetAmount || 1;
+                    return spent > target;
+                  }).length
+                : 0}
+            </div>
+          </div>
+        </div>
+
+        {/* Budgets Table */}
+        <div className="bg-white rounded-xl shadow-sm">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-gray-800">
+              Budget Details
+            </h2>
+          </div>
+          <Table
+            headers={[
+              "Name",
+              "Amount",
+              "Notes",
+              "Start Date",
+              "End Date",
+              "Category",
+              "Spent Amount",
+              "Actions",
+            ]}
+            data={formattedBudgets}
+          />
+        </div>
+
+        {/* Side Panel */}
         <AnimatePresence>
           {isSidePanelOpen && (
             <BudgetSidePanel
@@ -220,61 +327,6 @@ function BudgetsPage() {
             />
           )}
         </AnimatePresence>
-      </div>
-
-      {/* Charts Section */}
-      <div className="my-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Budget Overview</h2>
-        
-        {/* Loading indicator */}
-        {loading && (
-          <div className="flex justify-center my-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-          </div>
-        )}
-
-        {/* Error message */}
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-
-        {/* Budget Charts Slider */}
-        {!loading && <BudgetSlider budgets={budgets} />}
-      </div>
-
-      {/* Table Section */}
-      <div className="my-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Budget Details</h2>
-        
-        {/* Loading indicator */}
-        {loading && (
-          <div className="flex justify-center my-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-          </div>
-        )}
-
-        {/* Error message */}
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-
-        {/* Budgets Table */}
-        {!loading && (
-          budgetTableData.length > 0 ? (
-            <Table 
-              headers={["Name", "Amount", "Spent", "Category", "Start Date", "End Date", "Notes", "Actions"]} 
-              data={budgetTableData} 
-            />
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              No budgets found. Add a budget to get started.
-            </div>
-          )
-        )}
       </div>
     </div>
   );

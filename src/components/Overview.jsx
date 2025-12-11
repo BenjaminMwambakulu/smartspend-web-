@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { AiFillDollarCircle } from "react-icons/ai";
 import { TbShoppingCartDollar } from "react-icons/tb";
 import { FaHandHoldingDollar } from "react-icons/fa6";
@@ -30,6 +30,10 @@ export default function Overview() {
 
   // States for budget tracking
   const [budgets, setBudgets] = useState([]);
+  
+  // Slider state
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const sliderRef = useRef(null);
 
   // New states for monthly aggregated data for the bar graph
   const [monthlyExpenses, setMonthlyExpenses] = useState({});
@@ -63,6 +67,27 @@ export default function Overview() {
       console.error("Error loading budget data:", error);
     }
   }
+  
+  // Auto-slide carousel
+  useEffect(() => {
+    if (budgets.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % budgets.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [budgets.length]);
+
+  // Scroll to current slide
+  useEffect(() => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollTo({
+        left: currentSlide * 280, // Width of each slide (256px + margins)
+        behavior: "smooth",
+      });
+    }
+  }, [currentSlide]);
 
   return (
     <div className="p-8 bg-white rounded-3xl flex justify-between">
@@ -101,18 +126,38 @@ export default function Overview() {
       <div className="w-[40%] pl-6">
         <h1 className="text-3xl text-gray-700 mb-2">Budgets</h1>
         {budgets.length > 0 ? (
-          <div className="w-full overflow-x-auto pb-4">
-            <div className="flex space-x-6 min-w-max py-2">
-              {budgets.map((budget) => (
-                <div 
-                  key={budget.$id} 
-                  className="shrink-0 w-64 bg-white rounded-lg shadow p-4"
-                >
-                  <BudgetDoughnutChart budget={budget} />
-                </div>
-              ))}
+          <>
+            <div
+              ref={sliderRef}
+              className="w-full overflow-x-auto pb-4 scrollbar-hide"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              <div className="flex space-x-6 min-w-max">
+                {budgets.map((budget, index) => (
+                  <div
+                    key={budget.$id}
+                    className="shrink-0 w-64 bg-white rounded-lg shadow p-4"
+                  >
+                    <BudgetDoughnutChart budget={budget} />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+
+            {budgets.length > 1 && (
+              <div className="flex justify-center mt-4 space-x-2">
+                {budgets.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`w-3 h-3 rounded-full ${
+                      index === currentSlide ? "bg-blue-600" : "bg-gray-300"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-8 text-gray-500">
             No budgets available. Add a budget to get started.
