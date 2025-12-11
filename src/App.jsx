@@ -19,7 +19,7 @@ function AppContent() {
   }
 
   return (
-    <div className="bg-primary p-8 min-h-screen">
+    <div className="bg-primary min-h-screen">
       <BrowserRouter>
         <AnimatePresence mode="wait">
           <Routes>

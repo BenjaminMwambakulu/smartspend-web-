@@ -5,20 +5,20 @@ export default function Table({
   data = [],
 }) {
   return (
-    <div className="w-full overflow-hidden rounded-xl border border-gray-200 shadow-sm">
-      <table className="w-full border-collapse text-sm">
+    <div className="w-full overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+      <table className="w-full border-collapse text-sm min-w-[600px] md:min-w-full">
         {/* Table Header */}
         <thead className="bg-linear-to-r from-gray-50 to-gray-100">
           <tr>
             {headers.map((header, index) => (
               <th
                 key={index}
-                className="px-6 py-4 font-semibold text-gray-700 border-b border-gray-200 text-left first:rounded-tl-xl last:rounded-tr-xl"
+                className="px-4 sm:px-6 py-3 sm:py-4 font-semibold text-gray-700 border-b border-gray-200 text-left first:rounded-tl-xl last:rounded-tr-xl whitespace-nowrap"
               >
                 <div className="flex items-center gap-2">
                   {header}
                   {index < headers.length - 1 && (
-                    <div className="w-px h-4 bg-gray-300 ml-2" />
+                    <div className="w-px h-4 bg-gray-300 ml-2 hidden sm:block" />
                   )}
                 </div>
               </th>
@@ -30,11 +30,11 @@ export default function Table({
         <tbody className="divide-y divide-gray-100">
           {data.length === 0 ? (
             <tr>
-              <td colSpan={headers.length} className="px-6 py-12 text-center">
+              <td colSpan={headers.length} className="px-4 sm:px-6 py-8 sm:py-12 text-center">
                 <div className="flex flex-col items-center justify-center gap-3">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center">
                     <svg
-                      className="w-8 h-8 text-gray-400"
+                      className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -48,10 +48,10 @@ export default function Table({
                     </svg>
                   </div>
                   <div>
-                    <p className="text-gray-600 font-medium">
+                    <p className="text-gray-600 font-medium text-sm sm:text-base">
                       No records found
                     </p>
-                    <p className="text-gray-400 text-sm mt-1">
+                    <p className="text-gray-400 text-xs sm:text-sm mt-1">
                       Add some data to get started
                     </p>
                   </div>
@@ -67,7 +67,7 @@ export default function Table({
                 {Object.values(row).map((cell, cellIndex) => (
                   <td
                     key={cellIndex}
-                    className="px-6 py-4 text-gray-700 group-hover:text-gray-900 relative"
+                    className="px-4 sm:px-6 py-3 sm:py-4 text-gray-700 group-hover:text-gray-900 relative text-sm sm:text-base"
                   >
                     {/* Add subtle hover effect */}
                     <div className="relative z-10">
@@ -86,8 +86,8 @@ export default function Table({
         {data.length > 0 && (
           <tfoot className="bg-gray-50 border-t border-gray-200">
             <tr>
-              <td colSpan={headers.length} className="px-6 py-3">
-                <div className="flex justify-between items-center text-sm text-gray-500">
+              <td colSpan={headers.length} className="px-4 sm:px-6 py-3">
+                <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-gray-500 gap-2">
                   <div>
                     Showing{" "}
                     <span className="font-semibold text-gray-700">
@@ -95,12 +95,12 @@ export default function Table({
                     </span>{" "}
                     records
                   </div>
-                  <div className="flex items-center gap-4">
-                    <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors text-gray-600">
+                  <div className="flex items-center gap-2 sm:gap-4">
+                    <button className="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors text-gray-600 text-xs sm:text-sm">
                       Previous
                     </button>
-                    <span className="text-gray-700">Page 1 of 1</span>
-                    <button className="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors text-gray-600">
+                    <span className="text-gray-700 text-xs sm:text-sm">Page 1 of 1</span>
+                    <button className="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors text-gray-600 text-xs sm:text-sm">
                       Next
                     </button>
                   </div>

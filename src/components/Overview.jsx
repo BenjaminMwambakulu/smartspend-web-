@@ -78,9 +78,9 @@ export default function Overview() {
   }, [currentSlide]);
 
   return (
-    <div className="p-8 bg-white rounded-3xl flex justify-between">
-      <div className="flex w-[60%] flex-col  border-r-2 pr-8 border-gray-300">
-        <div className="flex justify-between w-full">
+    <div className="p-4 sm:p-6 md:p-8 bg-white rounded-3xl flex flex-col lg:flex-row justify-between">
+      <div className="w-full lg:w-[60%] flex flex-col border-r-0 lg:border-r-2 border-gray-300 pr-0 lg:pr-8 mb-6 lg:mb-0">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
           {/* Total Expenses Stat */}
           <StatBuilder
             title="Expenses"
@@ -102,18 +102,19 @@ export default function Overview() {
             icon={<TbShoppingCartDollar />}
             color="text-green-500"
           />
-
         </div>
 
         {/* Monthly Bar Graph */}
-        <BarGraph
-          monthlyExpenses={monthlyExpenses}
-          monthlyRevenue={monthlyRevenue}
-        />
+        <div className="mt-6">
+          <BarGraph
+            monthlyExpenses={monthlyExpenses}
+            monthlyRevenue={monthlyRevenue}
+          />
+        </div>
       </div>
 
-      <div className="w-[40%] pl-6">
-        <h1 className="text-3xl text-gray-700 mb-2">Budgets</h1>
+      <div className="w-full lg:w-[40%] pl-0 lg:pl-6">
+        <h1 className="text-2xl md:text-3xl text-gray-700 mb-2">Budgets</h1>
         {budgets.length > 0 ? (
           <>
             <div
@@ -121,11 +122,11 @@ export default function Overview() {
               className="w-full overflow-x-auto pb-4 scrollbar-hide"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
-              <div className="flex space-x-6 min-w-max">
+              <div className="flex space-x-4 sm:space-x-6 min-w-max">
                 {budgets.map((budget, index) => (
                   <div
                     key={budget.$id}
-                    className="shrink-0 w-64 bg-white rounded-lg shadow p-4"
+                    className="shrink-0 w-64 sm:w-72 bg-white rounded-lg shadow p-4"
                   >
                     <BudgetDoughnutChart budget={budget} />
                   </div>
@@ -139,7 +140,7 @@ export default function Overview() {
                   <button
                     key={index}
                     onClick={() => setCurrentSlide(index)}
-                    className={`w-3 h-3 rounded-full ${
+                    className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${
                       index === currentSlide ? "bg-blue-600" : "bg-gray-300"
                     }`}
                   />

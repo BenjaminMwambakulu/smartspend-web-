@@ -16,9 +16,11 @@ const ProtectedRoute = ({ children }) => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto ">
+    <div className="max-w-7xl mx-auto px-2 sm:px-4">
       <NavBar />
-      {children}
+      <div className="mt-2 sm:mt-4">
+        {children}
+      </div>
     </div>
   );
 };

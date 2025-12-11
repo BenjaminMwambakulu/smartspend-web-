@@ -188,25 +188,26 @@ function BudgetsPage() {
   }
 
   return (
-    <div className="min-h-screen py-8">
+    <div className="min-h-screen py-4 sm:py-8 px-2 sm:px-4">
       <div className="">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 sm:mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Budgets</h1>
-            <p className="text-gray-600 mt-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Budgets</h1>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">
               Manage your spending limits and track expenses
             </p>
           </div>
           <PrimaryButton
             text={"+ New Budget"}
             onClick={() => setIsSidePanelOpen(true)}
+            className="w-full sm:w-auto"
           />
         </div>
 
         {/* Budget Chart Carousel */}
         {budgets && budgets.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">
               Budget Overview
             </h2>
             <div
@@ -214,11 +215,11 @@ function BudgetsPage() {
               className="w-full overflow-x-auto pb-4 scrollbar-hide"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
-              <div className="flex space-x-6 min-w-max">
+              <div className="flex space-x-4 sm:space-x-6 min-w-max">
                 {budgets.map((budget, index) => (
                   <div
                     key={budget.$id}
-                    className="shrink-0 w-64 bg-white rounded-lg shadow p-4"
+                    className="shrink-0 w-60 sm:w-64 bg-white rounded-lg shadow p-3 sm:p-4"
                   >
                     <BudgetDoughnutChart budget={budget} />
                   </div>
@@ -227,12 +228,12 @@ function BudgetsPage() {
             </div>
 
             {budgets.length > 1 && (
-              <div className="flex justify-center mt-4 space-x-2">
+              <div className="flex justify-center mt-3 sm:mt-4 space-x-2">
                 {budgets.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentSlide(index)}
-                    className={`w-3 h-3 rounded-full ${
+                    className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${
                       index === currentSlide ? "bg-blue-600" : "bg-gray-300"
                     }`}
                   />
@@ -243,20 +244,20 @@ function BudgetsPage() {
         )}
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="text-gray-500 text-sm font-medium">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+            <div className="text-gray-500 text-xs sm:text-sm font-medium">
               Total Budgets
             </div>
-            <div className="text-2xl font-bold text-gray-900 mt-2">
+            <div className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 sm:mt-2">
               {budgets ? budgets.length : 0}
             </div>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="text-gray-500 text-sm font-medium">
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+            <div className="text-gray-500 text-xs sm:text-sm font-medium">
               Within Budget
             </div>
-            <div className="text-2xl font-bold text-green-600 mt-2">
+            <div className="text-xl sm:text-2xl font-bold text-green-600 mt-1 sm:mt-2">
               {budgets
                 ? budgets.filter((b) => {
                     const spent = b.spentAmount || 0;
@@ -266,9 +267,9 @@ function BudgetsPage() {
                 : 0}
             </div>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="text-gray-500 text-sm font-medium">Over Budget</div>
-            <div className="text-2xl font-bold text-red-600 mt-2">
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+            <div className="text-gray-500 text-xs sm:text-sm font-medium">Over Budget</div>
+            <div className="text-xl sm:text-2xl font-bold text-red-600 mt-1 sm:mt-2">
               {budgets
                 ? budgets.filter((b) => {
                     const spent = b.spentAmount || 0;
@@ -281,9 +282,9 @@ function BudgetsPage() {
         </div>
 
         {/* Budgets Table */}
-        <div className="bg-white rounded-xl shadow-sm">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-800">
+        <div className="bg-white rounded-xl shadow-sm p-2 sm:p-4">
+          <div className="flex justify-between items-center mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
               Budget Details
             </h2>
           </div>

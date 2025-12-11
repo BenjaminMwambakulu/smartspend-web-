@@ -45,26 +45,26 @@ export default function Goals() {
   }
 
   return (
-    <div className="bg-transparent mt-16">
+    <div className="bg-transparent mt-8 sm:mt-16">
       <div className="mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               Financial Goals
             </h1>
           </div>
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
             <StatBuilder
               title="Goals"
               value={goals ? goals.length : 0}
               icon={<GiStairsGoal />}
             />
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
             <StatBuilder
               title={"In Progress"}
               value={
@@ -79,7 +79,7 @@ export default function Goals() {
               icon={<AiFillClockCircle />}
             />
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
             <StatBuilder
               title="Completed"
               value={
@@ -91,7 +91,7 @@ export default function Goals() {
               color="text-green-500"
             />
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
             <StatBuilder
               title="Total Saved"
               value={

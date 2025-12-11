@@ -245,27 +245,28 @@ function GoalsPage() {
   }
 
   return (
-    <div className="min-h-screen py-8">
+    <div className="min-h-screen py-4 sm:py-8 px-2 sm:px-4">
       <div className="">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 sm:mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               Financial Goals
             </h1>
-            <p className="text-gray-600 mt-2">
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">
               Track and manage your savings targets
             </p>
           </div>
           <PrimaryButton
             text={"+ New Goal"}
             onClick={() => setIsSidePanelOpen(true)}
+            className="w-full sm:w-auto"
           />
         </div>
 
         {/* Donut Chart Carousel */}
         {goals && goals.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">
               Goal Progress
             </h2>
             <div
@@ -273,11 +274,11 @@ function GoalsPage() {
               className="w-full overflow-x-auto pb-4 scrollbar-hide"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
-              <div className="flex space-x-6 min-w-max">
+              <div className="flex space-x-4 sm:space-x-6 min-w-max">
                 {goals.map((goal, index) => (
                   <div
                     key={goal.$id}
-                    className="shrink-0 w-64 bg-white rounded-lg shadow p-4"
+                    className="shrink-0 w-60 sm:w-64 bg-white rounded-lg shadow p-3 sm:p-4"
                   >
                     <GoalDonut goal={goal} />
                   </div>
@@ -286,12 +287,12 @@ function GoalsPage() {
             </div>
 
             {goals.length > 1 && (
-              <div className="flex justify-center mt-4 space-x-2">
+              <div className="flex justify-center mt-3 sm:mt-4 space-x-2">
                 {goals.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentSlide(index)}
-                    className={`w-3 h-3 rounded-full ${
+                    className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${
                       index === currentSlide ? "bg-blue-600" : "bg-gray-300"
                     }`}
                   />
@@ -302,16 +303,16 @@ function GoalsPage() {
         )}
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="text-gray-500 text-sm font-medium">Total Goals</div>
-            <div className="text-2xl font-bold text-gray-900 mt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+            <div className="text-gray-500 text-xs sm:text-sm font-medium">Total Goals</div>
+            <div className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 sm:mt-2">
               {goals ? goals.length : 0}
             </div>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="text-gray-500 text-sm font-medium">In Progress</div>
-            <div className="text-2xl font-bold text-blue-600 mt-2">
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+            <div className="text-gray-500 text-xs sm:text-sm font-medium">In Progress</div>
+            <div className="text-xl sm:text-2xl font-bold text-blue-600 mt-1 sm:mt-2">
               {goals
                 ? goals.filter((g) => {
                     const contributed = g.amountContributed || 0;
@@ -322,9 +323,9 @@ function GoalsPage() {
                 : 0}
             </div>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="text-gray-500 text-sm font-medium">Completed</div>
-            <div className="text-2xl font-bold text-green-600 mt-2">
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+            <div className="text-gray-500 text-xs sm:text-sm font-medium">Completed</div>
+            <div className="text-xl sm:text-2xl font-bold text-green-600 mt-1 sm:mt-2">
               {goals
                 ? goals.filter((g) => {
                     const contributed = g.amountContributed || 0;
@@ -335,9 +336,9 @@ function GoalsPage() {
                 : 0}
             </div>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="text-gray-500 text-sm font-medium">Total Saved</div>
-            <div className="text-2xl font-bold text-gray-900 mt-2">
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+            <div className="text-gray-500 text-xs sm:text-sm font-medium">Total Saved</div>
+            <div className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 sm:mt-2">
               <sup>MK</sup>
               {goals
                 ? goals
@@ -352,7 +353,7 @@ function GoalsPage() {
         </div>
 
         {/* Goals Table */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <GoalsTable
             goalsData={goals}
             onEdit={handleEdit}
@@ -363,7 +364,7 @@ function GoalsPage() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="mt-6">
+          <div className="mt-4 sm:mt-6">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
@@ -376,10 +377,10 @@ function GoalsPage() {
 
         {/* Empty State */}
         {goals && goals.length === 0 && !loading && (
-          <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="bg-white rounded-2xl shadow-sm p-6 sm:p-12 text-center">
+            <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
               <svg
-                className="w-12 h-12 text-gray-400"
+                className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -392,13 +393,13 @@ function GoalsPage() {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
               No goals yet
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">
               Start by creating your first financial goal
             </p>
-            <PrimaryButton text={"Create Your First Goal"}  onClick={() => setIsSidePanelOpen(true)}/>
+            <PrimaryButton text={"Create Your First Goal"}  onClick={() => setIsSidePanelOpen(true)} className="w-full sm:w-auto"/>
           </div>
         )}
       </div>

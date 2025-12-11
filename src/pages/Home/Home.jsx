@@ -40,10 +40,10 @@ function Home() {
   }
 
   return (
-    <div>
+    <div className="px-2 sm:px-4">
       {/* Greeting */}
-      <div className="my-8">
-        <h1 className="text-lg text-secondary mb-1">Welcome</h1>
+      <div className="my-4 sm:my-8">
+        <h1 className="text-base sm:text-lg text-secondary mb-1">Welcome</h1>
         <div className="flex items-center">
           {profile ? (
             <>
@@ -53,14 +53,14 @@ function Home() {
                   `https://ui-avatars.com/api/?name=${profile.username}`
                 }
                 alt="user profile"
-                className="h-10 w-10 rounded-full"
+                className="h-8 w-8 sm:h-10 sm:w-10 rounded-full"
               />
-              <p className="text-gray-600 text-2xl ml-2 font-bold ">
+              <p className="text-gray-600 text-xl sm:text-2xl ml-2 font-bold ">
                 {profile.username}
               </p>
             </>
           ) : (
-            <p className="text-gray-600 text-2xl font-bold">User</p>
+            <p className="text-gray-600 text-xl sm:text-2xl font-bold">User</p>
           )}
         </div>
       </div>

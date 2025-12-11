@@ -165,10 +165,10 @@ function Expenses() {
   }, [user?.$id, pageSize]); // Dependency on user.$id and pageSize
 
   return (
-    <div className="my-8">
-      <div className="flex justify-between items-center">
+    <div className="my-4 sm:my-8 px-2 sm:px-4">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <h1 className="flex flex-col">
-          <span className="text-2xl text-gray-800">Expenses</span>
+          <span className="text-xl sm:text-2xl text-gray-800">Expenses</span>
           <span className="text-sm text-gray-600">Manage your Expenses</span>
         </h1>
         <PrimaryButton
@@ -178,6 +178,7 @@ function Expenses() {
             setIsSidePanelOpen(!isSidePanelOpen);
             console.log("Side panel opened");
           }}
+          className="w-full sm:w-auto"
         />
         {/* Modal Display */}
         <AnimatePresence>
@@ -196,7 +197,7 @@ function Expenses() {
         </AnimatePresence>
       </div>
       {/* Stats Display */}
-      <div className="my-8 flex gap-8 justify-center items-center">
+      <div className="my-6 sm:my-8 flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center">
         {/* Stats components would go here */}
         <StatBuilder
           title={"Total Expenses"}
@@ -208,7 +209,7 @@ function Expenses() {
           title={"Total Expense Categories"}
           value={categories && categories.length ? categories.length : 0}
           icon={<MdCategory />}
-          className={"ml-10"}
+          className={"ml-0 sm:ml-10"}
           color={"text-blue-500"}
         />
       </div>
@@ -216,13 +217,13 @@ function Expenses() {
       {/* Loading indicator */}
       {loading && (
         <div className="flex justify-center my-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-gray-900"></div>
         </div>
       )}
       
       {/* Error message */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 sm:px-4 sm:py-3 rounded mb-4 text-sm">
           {error}
         </div>
       )}
@@ -239,7 +240,7 @@ function Expenses() {
       />
       
       {/* Pagination info */}
-      <div className="mt-4 text-sm text-gray-500 text-center">
+      <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500 text-center">
         Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalDocuments)} of {totalDocuments} entries
       </div>
     </div>
