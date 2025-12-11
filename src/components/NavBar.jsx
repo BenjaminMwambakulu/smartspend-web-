@@ -136,13 +136,13 @@ export default function NavBar() {
                 <img
                   src={
                     profile.profilePicture ??
-                    `https://ui-avatars.com/api/?name=${profile.username}`
+                    `https://ui-avatars.com/api/?name=${profile.username || user?.name}`
                   }
                   alt="user profile"
                   className="h-8 w-8 sm:h-10 sm:w-10 rounded-full mr-1"
                 />
                 <p className="text-gray-600 ml-2 font-bold text-sm hidden lg:block">
-                  {profile.username}
+                  {profile.username || user?.name}
                 </p>
                 <button className="ml-2" title="Logout" onClick={handleLogout}>
                   <BiLogOut size={25} className="text-red-500" />

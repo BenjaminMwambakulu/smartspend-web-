@@ -3,13 +3,16 @@ import UserContext from "../../context/userContext";
 import { account } from "../../config/appwrite";
 import PrimaryButton from "../../components/PrimaryButton";
 import formatMoney from "../../utils/formatMoney";
-import { getUserProfile, updateUserName } from "../../services/profileService";
+import { getUserProfile, updateUserName, updateUserProfile } from "../../services/profileService";
 
 const ProfilePage = () => {
   const { user, logout } = useContext(UserContext);
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.name || "");
-  const [email, setEmail] = useState(user?.email || "");
+  const [profilePicture, setProfilePicture] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState(""); // success or error
   const [profile, setProfile] = useState(null);
@@ -21,6 +24,7 @@ const ProfilePage = () => {
         const result = await getUserProfile(user.$id);
         if (result.success) {
           setProfile(result.data);
+          setProfilePicture(result.data?.profilePicture || "");
         }
         setLoading(false);
       }
@@ -32,14 +36,50 @@ const ProfilePage = () => {
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
-      const response = await updateUserName(name);
-      if (response.success) {
-        setMessage("Profile updated successfully!");
-        setMessageType("success");
-        setEditing(false);
-      } else {
-        throw new Error(response.error);
+      // Update password if provided
+      if (currentPassword && newPassword) {
+        if (newPassword !== confirmPassword) {
+          throw new Error("New passwords do not match");
+        }
+        
+        // Update password
+        await account.updatePassword(newPassword, currentPassword);
       }
+      
+      // Update the account name
+      if (name !== user?.name) {
+        const nameResponse = await updateUserName(name);
+        if (!nameResponse.success) {
+          throw new Error(nameResponse.error);
+        }
+      }
+      
+      // Also update the profile document in the database
+      if (profile) {
+        const profileData = {
+          username: name
+        };
+        
+        // Only update profile picture if a URL was provided
+        if (profilePicture) {
+          profileData.profilePicture = profilePicture;
+        }
+        
+        const profileResponse = await updateUserProfile(profile.$id, profileData);
+        if (!profileResponse.success) {
+          throw new Error(profileResponse.error);
+        }
+        setProfile(profileResponse.data);
+      }
+      
+      // Clear password fields
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      
+      setMessage("Profile updated successfully!");
+      setMessageType("success");
+      setEditing(false);
     } catch (error) {
       setMessage(`Error updating profile: ${error.message}`);
       setMessageType("error");
@@ -105,6 +145,7 @@ const ProfilePage = () => {
               <img
                 className="h-24 w-24 rounded-full border-2 border-gray-300 object-cover"
                 src={
+                  profilePicture ||
                   profile?.profilePicture ||
                   `https://ui-avatars.com/api/?name=${user?.name}`
                 }
@@ -163,8 +204,7 @@ const ProfilePage = () => {
                       <input
                         type="email"
                         id="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={user?.email || ""}
                         className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2 border"
                         readOnly
                       />
@@ -175,6 +215,92 @@ const ProfilePage = () => {
                     )}
                   </div>
                 </div>
+
+                {editing && (
+                  <>
+                    <div className="sm:col-span-6">
+                      <label
+                        htmlFor="profilePicture"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Profile Picture URL
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          type="text"
+                          id="profilePicture"
+                          value={profilePicture}
+                          onChange={(e) => setProfilePicture(e.target.value)}
+                          placeholder="https://example.com/image.jpg"
+                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2 border"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="sm:col-span-6 border-t border-gray-200 pt-4 mt-4">
+                      <h3 className="text-md font-medium text-gray-900 mb-2">
+                        Change Password
+                      </h3>
+                      <p className="text-sm text-gray-500 mb-4">
+                        Leave these fields blank if you don't want to change your password.
+                      </p>
+                    </div>
+
+                    <div className="sm:col-span-6">
+                      <label
+                        htmlFor="currentPassword"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Current Password
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          type="password"
+                          id="currentPassword"
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2 border"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="sm:col-span-6">
+                      <label
+                        htmlFor="newPassword"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        New Password
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          type="password"
+                          id="newPassword"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2 border"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="sm:col-span-6">
+                      <label
+                        htmlFor="confirmPassword"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Confirm New Password
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          type="password"
+                          id="confirmPassword"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2 border"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -186,7 +312,10 @@ const ProfilePage = () => {
                       onClick={() => {
                         setEditing(false);
                         setName(user?.name || "");
-                        setEmail(user?.email || "");
+                        setProfilePicture(profile?.profilePicture || "");
+                        setCurrentPassword("");
+                        setNewPassword("");
+                        setConfirmPassword("");
                       }}
                       className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
